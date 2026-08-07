@@ -1,66 +1,52 @@
 <!doctype html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0a4779" />
-    <title>青春反诈飞行棋</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <header class="topbar">
-      <a class="brand" href="#top"><span>法</span>青春反诈飞行棋</a>
-      <p>法治青春中国行 · 识诈防诈反诈</p>
-      <button class="text-button" id="ruleButton" type="button">玩法说明</button>
-    </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#5d58df" />
+  <title>反诈星球飞行棋</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="sky-shape cloud-a">☁️</div><div class="sky-shape cloud-b">☁️</div><div class="sky-shape star-a">✦</div>
+  <header><a class="brand" href="#top"><span>🛡️</span>反诈星球飞行棋</a><div class="header-right"><span>无广告 · 无付费 · 一起守护</span><button id="helpButton" type="button">怎么玩？</button></div></header>
+  <main id="top">
+    <section class="welcome">
+      <div><p class="eyebrow">法治青春中国行 · 少年反诈小队</p><h1>和小伙伴一起<br /><em>打败“骗局怪”！</em></h1><p>掷骰子、开宝箱、找线索。学会保护自己，也帮助家人和朋友。</p></div>
+      <div class="mascot-card"><span id="mascotFace">🦊</span><div><b id="mascotName">小狐侦探</b><p id="mascotSpeech">“发现可疑消息，先停一停！”</p></div></div>
+    </section>
 
-    <main id="top">
-      <section class="hero">
-        <div><p class="eyebrow">反诈情景模拟 · 基层社会治理</p><h1>每一次掷骰，都是一次<br /><em>青春守护行动</em></h1><p>和同伴一起走进平安社区，在真实诈骗对话中找线索、做判断、护群众。</p></div>
-        <div class="hero-stats"><div><b id="savedScore">0</b><span>累计反诈值</span></div><div><b id="savedBadges">0</b><span>已获勋章</span></div></div>
-      </section>
+    <section class="adventure-panel">
+      <div class="map-tabs" id="mapTabs">
+        <button class="active" data-map="0"><span>🏫</span>彩虹校园<i>第 1 站</i></button>
+        <button data-map="1"><span>🏘️</span>阳光社区<i>第 2 站</i></button>
+        <button data-map="2"><span>🌐</span>网络星球<i>第 3 站</i></button>
+      </div>
+      <div class="adventure-copy"><b id="mapTitle">彩虹校园：守护同学群</b><span id="mapGoal">收集 3 颗安全星星，就能点亮校园防护罩。</span><div class="star-track"><i id="starTrack"></i></div></div>
+    </section>
 
-      <section class="mode-bar">
-        <div><b>本地双人对战</b><span>轮流掷骰，先让一枚棋子抵达平安终点</span></div>
-        <button id="newGameButton" type="button">开启新对局</button>
-      </section>
+    <section class="game-layout" id="game">
+      <article class="game-card">
+        <div class="game-heading"><div><p class="eyebrow">安全巡逻棋盘</p><h2><span id="playerEmoji">🦊</span> <span id="playerName">小狐侦探</span>的冒险</h2></div><div class="score-pill">⭐ <b id="starCount">0</b> 安全星</div></div>
+        <div class="board-shell"><div class="board" id="board"></div><div class="board-center"><span>反诈<br />星球</span><small>勇敢 · 冷静 · 求助</small></div></div>
+        <div class="board-legend"><span>🎁 宝箱</span><span>⚠️ 骗局怪</span><span>🔎 线索站</span><span>🤝 守护站</span></div>
+      </article>
 
-      <section class="game-layout" id="game">
-        <article class="game-card">
-          <div class="game-heading"><div><p class="eyebrow">平安社区行动路线</p><h2>第 <span id="roundNumber">1</span> 回合</h2></div><div class="score-box">反诈值 <b id="gameScore">0</b></div></div>
-          <div class="board-shell"><div class="board" id="board" aria-label="反诈飞行棋棋盘"></div></div>
-          <div class="legend"><span class="risk">风险情景</span><span class="knowledge">反诈课堂</span><span class="service">治理行动</span><span class="safe">安全通行</span></div>
-        </article>
+      <aside class="side-panel">
+        <section class="hero-picker"><p>选择你的侦探伙伴</p><div id="heroPicker"><button data-hero="fox" class="selected">🦊</button><button data-hero="deer">🦌</button><button data-hero="cat">🐱</button></div></section>
+        <section class="mission"><p>今日小任务</p><b id="missionTitle">帮同学识破陌生链接</b><span id="missionProgress">0 / 2 次线索发现</span></section>
+        <section class="dice-area"><p id="turnHint">掷出 6 点，让一架小飞机起飞！</p><button class="dice" id="rollButton" type="button"><span id="diceValue">✦</span></button><b id="rollStatus">准备出发</b></section>
+        <section class="plane-select"><p>选择要移动的小飞机</p><div id="planeChoices"></div></section>
+        <section class="toolbox"><p>我的安全背包</p><div><button id="shieldTool" type="button" title="答错时保护一次">🛡️<b id="shieldCount">1</b><span>护盾</span></button><button id="magnifierTool" type="button" title="自动点亮一条线索">🔍<b id="magnifierCount">1</b><span>放大镜</span></button><button id="hornTool" type="button" title="治理站加倍奖励">📣<b id="hornCount">0</b><span>小喇叭</span></button></div></section>
+        <button class="restart" id="restartButton" type="button">重新开始这一站</button>
+      </aside>
+    </section>
 
-        <aside class="control-panel">
-          <div class="turn-card" id="turnCard"><span class="turn-dot red"></span><div><p>当前行动者</p><h2 id="currentPlayer">红队 · 学生先锋</h2></div><b id="turnScore">0 分</b></div>
-          <p class="turn-hint" id="turnHint">掷出 6 点才能让基地棋子起飞</p>
-          <button class="dice" id="rollButton" type="button" aria-label="掷骰子"><span id="diceValue">✦</span></button>
-          <strong class="roll-status" id="rollStatus">等待行动</strong>
-          <div class="tokens-box"><p>选择要移动的棋子</p><div id="tokenChoices" class="token-choices"></div></div>
-          <div class="mission-card"><span>社区任务</span><b id="missionTitle">守护宿舍群</b><p id="missionText">本局答对 2 道情景题，提醒身边同学不轻信陌生链接。</p></div>
-          <button class="restart-button" id="restartButton" type="button">重新开始本局</button>
-        </aside>
-      </section>
+    <section class="sticker-section"><div><p class="eyebrow">我的贴纸册</p><h2>每次勇敢判断，都值得一枚贴纸</h2></div><div class="stickers" id="stickers"></div></section>
+  </main>
 
-      <section class="feature-grid">
-        <article><span>🔎</span><div><b>找诈骗线索</b><p>在对话中点击可疑话术，再做出应对选择。</p></div></article>
-        <article><span>🏘️</span><div><b>治理行动卡</b><p>宣传、劝阻、核验，让反诈走进社区。</p></div></article>
-        <article><span>🏅</span><div><b>成长与复盘</b><p>保存反诈值，生成本局守护报告与勋章。</p></div></article>
-      </section>
-    </main>
-
-    <div class="modal-backdrop" id="modalBackdrop" hidden>
-      <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-        <button class="close-button" id="closeModal" type="button" aria-label="关闭">×</button>
-        <p class="modal-tag" id="modalTag">情景模拟</p><h2 id="modalTitle"></h2>
-        <div id="dialogue" class="dialogue"></div>
-        <div id="clueArea" class="clue-area"></div>
-        <div id="choiceArea" class="choice-area"></div>
-        <button class="primary-button" id="continueButton" type="button">继续游戏</button>
-      </section>
-    </div>
-    <div class="toast" id="toast" role="status"></div>
-    <script src="app.js"></script>
-  </body>
+  <div class="modal-backdrop" id="modalBackdrop" hidden><section class="modal" role="dialog" aria-modal="true"><button class="close" id="closeModal" type="button">×</button><p class="modal-tag" id="modalTag">线索挑战</p><h2 id="modalTitle"></h2><div class="dialogue" id="dialogue"></div><div class="clue-box" id="clueBox"></div><div class="answers" id="answers"></div><div id="resultBox"></div><button class="continue" id="continueButton" type="button">继续冒险</button></section></div>
+  <div class="toast" id="toast"></div>
+  <script src="app.js"></script>
+</body>
 </html>
