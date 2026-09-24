@@ -1,9 +1,9 @@
 const maps=[{title:'彩虹校园：守护同学群',goal:'收集 3 颗安全星星，就能点亮校园防护罩。',mission:'帮同学识破陌生链接',events:['link','refund','quiz']},{title:'阳光社区：守护爷爷奶奶',goal:'完成 2 次守护行动，点亮社区的平安灯。',mission:'教会家人核验陌生电话',events:['refund','delivery','quiz']},{title:'网络星球：打败骗局怪',goal:'找到 3 条关键线索，让骗局怪无处藏身。',mission:'识破屏幕共享小把戏',events:['screen','link','quiz']}];
 const heroes={
   red:{name:'橙小盾队长',short:'红盾',speech:'“看到可疑消息，先翻开防诈指南！”',image:'assets/characters/mascot-red.png'},
-  blue:{name:'蓝小安队长',short:'蓝安',speech:'“陌生链接不乱点，先核实再行动！”',image:'assets/characters/mascot-blue.png'},
-  green:{name:'绿小查队长',short:'绿查',speech:'“多看一眼线索，骗局就会露馅！”',image:'assets/characters/mascot-green.png'},
-  purple:{name:'紫小星队长',short:'紫星',speech:'“验证码是秘密，谁来索要都不给！”',image:'assets/characters/mascot-purple.png'}
+  blue:{name:'蜜桔小法',short:'小法',speech:'“先学法、再识骗，关键一步要核验！”',image:'assets/characters/mascot-blue.png'},
+  green:{name:'柿蒂阿婆',short:'阿婆',speech:'“不贪小便宜，陌生转账先问清！”',image:'assets/characters/mascot-green.png'},
+  purple:{name:'桃桃普法员',short:'桃桃',speech:'“验证码是秘密，谁来索要都不给！”',image:'assets/characters/mascot-purple.png'}
 };
 const pieceTeams=['red','blue','green','purple'];
 const cells=[['起飞站','🚩','home'],['安全草地','🌿','safe'],['神秘宝箱','🎁','chest'],['链接迷雾','⚠️','risk','link'],['线索站','🔎','clue','quiz'],['守护同学','🤝','help'],['安全草地','🌿','safe'],['退款怪','👾','risk','refund'],['神秘宝箱','🎁','chest'],['安全电话亭','☎️','help'],['快递迷雾','📦','risk','delivery'],['安全草地','🌿','safe'],['星星补给','⭐','chest'],['线索站','🔎','clue','quiz'],['屏幕共享怪','🖥️','risk','screen'],['守护家人','🏠','help'],['安全草地','🌿','safe'],['链接迷雾','🔗','risk','link'],['神秘宝箱','🎁','chest'],['小喇叭站','📣','help'],['线索站','🔎','clue','quiz'],['快递迷雾','📦','risk','delivery'],['安全草地','🌿','safe'],['平安终点','🏆','finish']];
