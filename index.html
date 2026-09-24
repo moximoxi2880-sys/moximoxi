@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#5d58df" />
   <title>反诈星球飞行棋</title>
+  <link rel="icon" href="favicon.svg" />
+  <link rel="preload" as="image" href="assets/characters/mascot-red.png" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="character-responsive.css" />
 </head>
 <body>
   <div class="sky-shape cloud-a">☁️</div><div class="sky-shape cloud-b">☁️</div><div class="sky-shape star-a">✦</div>
@@ -13,7 +16,7 @@
   <main id="top">
     <section class="welcome">
       <div><p class="eyebrow">法治青春中国行 · 少年反诈小队</p><h1>和小伙伴一起<br /><em>打败“骗局怪”！</em></h1><p>掷骰子、开宝箱、找线索。学会保护自己，也帮助家人和朋友。</p></div>
-      <div class="mascot-card"><span id="mascotFace">🦊</span><div><b id="mascotName">小狐侦探</b><p id="mascotSpeech">“发现可疑消息，先停一停！”</p></div></div>
+      <div class="mascot-card"><img id="mascotFace" src="assets/characters/mascot-red.png" alt="红色反诈文创玩偶" /><div><b id="mascotName">橙小盾队长</b><p id="mascotSpeech">“看到可疑消息，先翻开防诈指南！”</p></div></div>
     </section>
 
     <section class="adventure-panel">
@@ -27,16 +30,16 @@
 
     <section class="game-layout" id="game">
       <article class="game-card">
-        <div class="game-heading"><div><p class="eyebrow">安全巡逻棋盘</p><h2><span id="playerEmoji">🦊</span> <span id="playerName">小狐侦探</span>的冒险</h2></div><div class="score-pill">⭐ <b id="starCount">0</b> 安全星</div></div>
+        <div class="game-heading"><div><p class="eyebrow">安全巡逻棋盘</p><h2><img id="playerEmoji" src="assets/characters/mascot-red.png" alt="" /> <span id="playerName">橙小盾队长</span>的冒险</h2></div><div class="score-pill">⭐ <b id="starCount">0</b> 安全星</div></div>
         <div class="board-shell"><div class="board" id="board"></div><div class="board-center"><span>反诈<br />星球</span><small>勇敢 · 冷静 · 求助</small></div></div>
         <div class="board-legend"><span>🎁 宝箱</span><span>⚠️ 骗局怪</span><span>🔎 线索站</span><span>🤝 守护站</span></div>
       </article>
 
       <aside class="side-panel">
-        <section class="hero-picker"><p>选择你的侦探伙伴</p><div id="heroPicker"><button data-hero="fox" class="selected">🦊</button><button data-hero="deer">🦌</button><button data-hero="cat">🐱</button></div></section>
+        <section class="hero-picker"><p>选择你的反诈队长</p><div id="heroPicker"><button data-hero="red" class="selected" aria-label="选择橙小盾队长"><img src="assets/characters/mascot-red.png" alt="" /><span>红盾</span></button><button data-hero="blue" aria-label="选择蓝小安队长"><img src="assets/characters/mascot-blue.png" alt="" /><span>蓝安</span></button><button data-hero="green" aria-label="选择绿小查队长"><img src="assets/characters/mascot-green.png" alt="" /><span>绿查</span></button><button data-hero="purple" aria-label="选择紫小星队长"><img src="assets/characters/mascot-purple.png" alt="" /><span>紫星</span></button></div></section>
         <section class="mission"><p>今日小任务</p><b id="missionTitle">帮同学识破陌生链接</b><span id="missionProgress">0 / 2 次线索发现</span></section>
-        <section class="dice-area"><p id="turnHint">掷出 6 点，让一架小飞机起飞！</p><button class="dice" id="rollButton" type="button"><span id="diceValue">✦</span></button><b id="rollStatus">准备出发</b></section>
-        <section class="plane-select"><p>选择要移动的小飞机</p><div id="planeChoices"></div></section>
+        <section class="dice-area"><p id="turnHint">掷出 6 点，让一位反诈伙伴出发！</p><button class="dice" id="rollButton" type="button"><span id="diceValue">✦</span></button><b id="rollStatus">准备出发</b></section>
+        <section class="plane-select"><p>选择要移动的反诈伙伴</p><div id="planeChoices"></div></section>
         <section class="toolbox"><p>我的安全背包</p><div><button id="shieldTool" type="button" title="答错时保护一次">🛡️<b id="shieldCount">1</b><span>护盾</span></button><button id="magnifierTool" type="button" title="自动点亮一条线索">🔍<b id="magnifierCount">1</b><span>放大镜</span></button><button id="hornTool" type="button" title="治理站加倍奖励">📣<b id="hornCount">0</b><span>小喇叭</span></button></div></section>
         <button class="restart" id="restartButton" type="button">重新开始这一站</button>
       </aside>

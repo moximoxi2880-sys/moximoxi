@@ -1,0 +1,17 @@
+@media (max-width: 560px) {
+  .side-panel {
+    display: flex;
+  }
+
+  .hero-picker > div {
+    gap: 8px;
+  }
+
+  .hero-picker button {
+    height: 82px;
+  }
+
+  .hero-picker button img {
+    height: 59px;
+  }
+}
