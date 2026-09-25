@@ -1,27 +1,731 @@
-const maps=[{title:'彩虹校园：守护同学群',goal:'收集 3 颗安全星星，就能点亮校园防护罩。',mission:'帮同学识破陌生链接',events:['link','refund','quiz']},{title:'阳光社区：守护爷爷奶奶',goal:'完成 2 次守护行动，点亮社区的平安灯。',mission:'教会家人核验陌生电话',events:['refund','delivery','quiz']},{title:'网络星球：打败骗局怪',goal:'找到 3 条关键线索，让骗局怪无处藏身。',mission:'识破屏幕共享小把戏',events:['screen','link','quiz']}];
-const heroes={
-  red:{name:'橙小盾队长',short:'红盾',speech:'“看到可疑消息，先翻开防诈指南！”',image:'assets/characters/mascot-red.png'},
-  blue:{name:'蜜桔小法',short:'小法',speech:'“先学法、再识骗，关键一步要核验！”',image:'assets/characters/mascot-blue.png'},
-  green:{name:'柿蒂阿婆',short:'阿婆',speech:'“不贪小便宜，陌生转账先问清！”',image:'assets/characters/mascot-green.png'},
-  purple:{name:'桃桃普法员',short:'桃桃',speech:'“验证码是秘密，谁来索要都不给！”',image:'assets/characters/mascot-purple.png'}
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const heroes = [
+  { id: "red", name: "红盾调查员", title: "复盘队长", color: "#b7352b", image: "assets/characters/mascot-red.png" },
+  { id: "blue", name: "蜜桔小法", title: "法治宣传员", color: "#2d6f92", image: "assets/characters/mascot-blue.png" },
+  { id: "green", name: "柿蒂阿婆", title: "邻里守望员", color: "#4d7f51", image: "assets/characters/mascot-green.png" },
+  { id: "purple", name: "桃桃普法员", title: "风险核验员", color: "#8b5a8c", image: "assets/characters/mascot-purple.png" }
+];
+
+const trap = (name, icon, scene, penalty, caseId, clue) => ({
+  name, icon, type: "trap", scene, penalty, caseId, clue,
+  summary: `轻信并照做将扣除 ${penalty} 安全值；识别并拒绝则完成一次风险核验。`
+});
+const choice = (name, icon, scene, safeText, riskText, caseId, clue, safeFirst = true) => ({
+  name, icon, type: "choice", scene, safeText, riskText, caseId, clue, safeFirst,
+  summary: "在贴近乡村生活的情景中作出选择，安全方案奖励 8 点，冒险方案扣除 15 点。"
+});
+const safe = (name, icon, reward, lesson) => ({ name, icon, type: "safe", reward, lesson, summary: `完成安全实践，增加 ${reward} 点安全值。` });
+const eventTile = (name, icon, lesson = "抽取一张反诈事件卡，并立即执行卡牌效果。") => ({ name, icon, type: "event", lesson, summary: lesson });
+const special = (name, icon, kind, lesson, reward = 0) => ({ name, icon, type: "special", kind, lesson, reward, summary: lesson });
+
+const tiles = [
+  special("起点·马蹄岗复盘站", "🚩", "start", "经过或落到这里，复盘近期骗局并增加 10 点安全值。", 10),
+  trap("百香果果园陷阱", "🥭", "陌生采购商声称高价包销百香果，但要求先付“渠道保证金”。", 24, "预付保证金", "先付款、后签约"),
+  choice("蜜桔电商抉择", "🍊", "平台外“运营老师”称交保证金就能把蜜桔店铺推上首页。", "暂停付款，通过平台官方客服核验活动", "担心错过流量，立刻私下转保证金", "电商引流", "平台外收款"),
+  safe("三二五红色安全驿站", "⭐", 12, "与同伴复盘：凡是催促转账的消息，都要换一个渠道核实身份。"),
+  eventTile("大田油茶基地事件", "🌿"),
+  trap("农资化肥骗局", "🌾", "低价化肥广告承诺“内部渠道、货到丰收”，却要求向私人账户全款转账。", 28, "农资采购", "私人账户收款"),
+  choice("客家乡村养老抉择", "🏠", "“养老服务专员”上门推销高息养老项目，催老人当天签约。", "联系家人并查询民政、市场监管等官方信息", "相信熟人介绍，当场签约付款", "养老投资", "高息养老项目"),
+  safe("东江源便民服务点", "☎", 10, "通过官方窗口查询政策，不把验证码、银行卡密码告诉任何人。"),
+  eventTile("古柏故里事件", "🌳"),
+  trap("短视频刷单陷阱", "📱", "短视频群里先返小额佣金，再诱导做大额“联单任务”。", 30, "刷单返利", "小利诱导大额投入"),
+  special("三二五红色安全驿站", "★", "station", "重温调查方法：看来源、查身份、核账户、问家人。增加 15 点安全值。", 15),
+  choice("农产品直播抉择", "🎥", "直播代运营公司保证“七天爆单”，要求绕开合同先交服务费。", "查验公司资质、合同与真实案例后再决定", "只看成交截图，马上转服务费", "直播代运营", "保证爆单"),
+  eventTile("寻乌蜜桔产业园事件", "🍊"),
+  trap("冒充乡镇干部诈骗", "📄", "对方用干部头像发来“补贴申报表”，要求提供验证码并转认证费。", 35, "冒充公职人员", "索要验证码"),
+  safe("乡村警务宣传栏", "🛡", 8, "记住：接到 96110 预警电话要及时接听，并按民警提示止付核验。"),
+  choice("返乡青年网贷抉择", "💳", "贷款客服称银行卡号填错，需交“解冻金”才能放款。", "停止操作，通过持牌机构官方渠道查询", "继续借款交解冻金，想着到账后再还", "虚假网贷", "放款前收费"),
+  eventTile("菖蒲会见旧址事件", "🏛"),
+  trap("冒充亲友 AI 换脸", "🎭", "视频中的“亲友”神情自然，却催你马上代转一笔急用款。", 32, "AI 换脸", "视频也要二次核验"),
+  safe("百果满园合作社", "🤝", 11, "合作社建立双人复核：大额付款必须核合同、核账户、核收款人。"),
+  choice("研学旅游项目抉择", "🚌", "陌生机构发来低价研学团链接，要求脱离平台缴纳定金。", "通过学校或文旅部门核验资质与合同", "被限时名额催促，点击链接直接付款", "虚假旅游", "脱离平台付款"),
+  special("陷入骗局滞留区", "⏸", "detention", "正常移动落到这里仅为“路过参观”；只有连续三次对子或事件传送才会滞留。"),
+  eventTile("圳下战斗旧址事件", "📯"),
+  safe("村新时代文明实践站", "📣", 13, "把典型骗局讲给邻里听，帮助身边人建立“先核验、后行动”的习惯。"),
+  trap("虚假保险骗局", "☂", "“理赔专员”准确说出订单信息，要求共享屏幕办理快速赔付。", 26, "虚假理赔", "共享屏幕"),
+  choice("果园投资抉择", "🌱", "项目方承诺“云认养果树、每月固定分红”，只展示精美宣传片。", "实地调查经营主体、收益来源和合同风险", "相信保本高收益，立即认购多棵果树", "虚假投资", "保本高收益"),
+  eventTile("罗福嶂会议旧址事件", "⛰"),
+  safe("客家围屋议事点", "🏘", 9, "遇到拿不准的转账，先在家人、村干部或民警间进行多方核验。"),
+  trap("快递理赔诈骗", "📦", "“快递客服”称包裹丢失，发来网页要求填写银行卡和短信验证码。", 25, "快递理赔", "陌生理赔链接"),
+  choice("村集体分红抉择", "🧾", "群里通知“村集体分红升级”，扫码登记银行卡即可领钱。", "向村委会公开电话核实，不扫陌生二维码", "群里很多人说已领取，马上扫码登记", "冒充补贴", "群聊从众"),
+  eventTile("澄江战斗旧址事件", "🚩"),
+  special("罗塘谈判事件抽取站", "🃏", "event", "谈判前先调查。立即抽取并执行一张反诈事件卡。"),
+  safe("三二五红色安全驿站", "★", 14, "把“停止转账、保存证据、拨打官方电话”作为被骗后的止损三步。"),
+  trap("冒充网络导师理财骗局", "📈", "群内“导师”晒出盈利截图，要求下载指定软件跟投数字资产。", 33, "虚假理财", "指定软件跟投"),
+  choice("电商店铺抉择", "🛒", "客服称店铺违规，必须在十分钟内点击私聊链接缴纳解封费。", "从卖家后台进入官方申诉通道核验", "害怕封店，按私聊链接立即缴费", "冒充平台客服", "制造紧迫感"),
+  eventTile("阳天茗茶茶园事件", "🍵"),
+  safe("乡镇便民服务中心", "🏢", 10, "补贴和政务事项只认官方渠道，不通过陌生链接提交账户信息。"),
+  trap("“帮扶老区”慈善诈骗", "❤️", "自称公益组织人员募集“老区帮扶款”，收款码却是个人账户。", 27, "虚假慈善", "个人收款码"),
+  choice("乡村交友杀猪盘抉择", "💬", "网恋对象每天嘘寒问暖，随后推荐“内部投资平台”共同赚钱。", "拒绝投资并向亲友、警方核验对方身份", "为了共同未来，跟随对方充值试试", "交友投资", "感情铺垫投资"),
+  eventTile("百香果果社事件", "🥭"),
+  safe("果农夜校学习点", "📚", 12, "学习最新诈骗话术，把经验带回家庭和合作社。下一步将回到起点复盘。")
+];
+
+const eventCards = [
+  { title: "参加反诈宣讲", text: "你在村民会上讲解真实骗局，帮助农户守住钱袋子。", delta: 15, icon: "📣", positive: true },
+  { title: "合作社防骗培训", text: "合作社组织果农学习账户核验和合同审查。", delta: 12, icon: "🤝", positive: true },
+  { title: "邻居及时提醒", text: "邻居识破低价农资骗局，提醒你先查商家资质。", delta: 10, icon: "🌾", positive: true },
+  { title: "纪念馆研学复盘", text: "在寻乌调查纪念馆研学后，你养成多方核实的习惯。", delta: 14, icon: "🔎", positive: true, clue: true },
+  { title: "接听 96110 预警", text: "你及时接听预警电话并停止转账。", delta: 8, icon: "☎", positive: true },
+  { title: "入户反诈宣传", text: "乡镇干部入户宣传，讲清高发骗局的红旗信号。", delta: 11, icon: "🏠", positive: true },
+  { title: "蜜桔代加工高回报", text: "广告承诺代加工稳赚不赔，你没有核验便支付费用。", delta: -18, icon: "🍊", positive: false, caseId: "加工投资" },
+  { title: "虚假专项补贴链接", text: "所谓“老区农户专项补贴”页面套取了你的账户信息。", delta: -20, icon: "🔗", positive: false, caseId: "冒充补贴" },
+  { title: "群转果农致富项目", text: "群友热推的项目没有真实经营支撑。", delta: -16, icon: "💬", positive: false, caseId: "群聊投资" },
+  { title: "果园补贴索卡号", text: "对方以发放百香果果园补贴为由索要银行卡和验证码。", delta: -22, icon: "💳", positive: false, caseId: "冒充补贴" },
+  { title: "亲友转来刷单链接", text: "熟人账号也可能被盗，你因未二次核验而进入刷单任务。", delta: -19, icon: "📱", positive: false, caseId: "刷单返利" },
+  { title: "虚假特产微商加盟", text: "“寻乌特产全国总代”收取加盟费后失联。", delta: -17, icon: "🛍", positive: false, caseId: "微商加盟" }
+];
+// 规则手册要求 36 张事件卡；以设计文档给出的 12 个主题各配置 3 张，形成完整虚拟牌堆。
+const eventDeck = Array.from({ length: 36 }, (_, index) => ({ ...eventCards[index % eventCards.length] }));
+
+const perimeter = (() => {
+  const result = [[11, 1]];
+  for (let c = 2; c <= 11; c++) result.push([11, c]);
+  for (let r = 10; r >= 1; r--) result.push([r, 11]);
+  for (let c = 10; c >= 1; c--) result.push([1, c]);
+  for (let r = 2; r <= 10; r++) result.push([r, 1]);
+  return result;
+})();
+
+const state = {
+  started: false, finished: false, mode: "standard", players: [], current: 0, round: 1,
+  phase: "setup", doublesStreak: 0, extraRoll: false, selectedHeroes: new Set(["red", "blue"]),
+  cases: new Set(), logs: [], secondsLeft: 28 * 60, timer: null, spin: -2, topView: false,
+  sound: true, modalLocked: false, modalContinue: null, eventIndex: 0
 };
-const pieceTeams=['red','blue','green','purple'];
-const cells=[['起飞站','🚩','home'],['安全草地','🌿','safe'],['神秘宝箱','🎁','chest'],['链接迷雾','⚠️','risk','link'],['线索站','🔎','clue','quiz'],['守护同学','🤝','help'],['安全草地','🌿','safe'],['退款怪','👾','risk','refund'],['神秘宝箱','🎁','chest'],['安全电话亭','☎️','help'],['快递迷雾','📦','risk','delivery'],['安全草地','🌿','safe'],['星星补给','⭐','chest'],['线索站','🔎','clue','quiz'],['屏幕共享怪','🖥️','risk','screen'],['守护家人','🏠','help'],['安全草地','🌿','safe'],['链接迷雾','🔗','risk','link'],['神秘宝箱','🎁','chest'],['小喇叭站','📣','help'],['线索站','🔎','clue','quiz'],['快递迷雾','📦','risk','delivery'],['安全草地','🌿','safe'],['平安终点','🏆','finish']];
-const positions=[[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[2,7],[3,7],[4,7],[5,7],[5,6],[5,5],[5,4],[5,3],[5,2],[5,1],[4,1],[3,1],[2,1],[2,2],[2,3],[2,4],[2,5]];
-const stories={link:{title:'链接迷雾',lines:[['陌生消息','“你的游戏皮肤免费领，快点这个链接！”']],clues:['陌生链接','免费诱惑','催你立刻点'],answers:['马上点开领取','不点陌生链接，问家长或老师','把链接发到群里'],correct:1,tip:'不认识的人发来的链接，先不点，再找大人一起看看。'},refund:{title:'退款怪来电话',lines:[['陌生客服','“你的快递丢了，下载 APP 就能赔 300 元。”'],['陌生客服','“快打开屏幕共享，我帮你操作。”']],clues:['下载陌生 APP','屏幕共享','主动赔钱'],answers:['按对方说的下载 APP','挂断后从购物订单找官方客服','把验证码念给对方'],correct:1,tip:'正规客服不会让你下载陌生 APP、共享屏幕或念验证码。'},delivery:{title:'快递小陷阱',lines:[['陌生客服','“先转一元认证，才能拿到快递赔款。”']],clues:['先转账','私下联系','小额试探'],answers:['先转一元试试看','不转账，从官方订单核实','借爸爸妈妈手机转'],correct:1,tip:'任何“先转账再赔付”都是陷阱，要从官方订单里核验。'},screen:{title:'屏幕共享怪',lines:[['贷款专员','“打开屏幕共享，把验证码告诉我，我来帮你。”']],clues:['屏幕共享','验证码','远程操作'],answers:['打开共享让对方帮忙','拒绝并告诉家长','把验证码读出来'],correct:1,tip:'屏幕共享会让陌生人看到验证码和账户信息，必须拒绝。'},quiz:{title:'安全小问答',lines:[['橙小盾队长','“96110 来电时，我们应该怎么做？”']],clues:['官方预警','及时接听','核实情况'],answers:['害怕，马上挂断','及时接听，按民警提示核实','把号码拉黑'],correct:1,tip:'96110 是全国预警劝阻专线，接到电话请及时接听。'}};
-const state={hero:'red',tokens:[-1,-1,-1,-1],dice:0,rolling:false,waiting:false,stars:0,clues:0,map:0,tools:{shield:1,magnifier:1,horn:0},pending:false};const $=id=>document.querySelector(id);const board=$('#board'),toast=$('#toast');
-function buildBoard(){board.replaceChildren();const pos=new Map(positions.map((p,i)=>[p.join('-'),i]));for(let r=1;r<=5;r++)for(let c=1;c<=7;c++){const i=pos.get(`${r}-${c}`);if(i===undefined)continue;const [name,icon,type]=cells[i],el=document.createElement('div');el.className=`cell ${type}`;el.dataset.index=i;el.style.gridArea=`${r}/${c}`;el.innerHTML=`<small>${i+1}</small><span>${icon}</span><b>${name}</b>`;board.append(el)}renderPlanes()}
-function renderPlanes(){board.querySelectorAll('.plane').forEach(el=>el.remove());state.tokens.forEach((position,index)=>{if(position<0)return;const hero=heroes[pieceTeams[index]],target=board.querySelector(`[data-index="${position}"]`),plane=document.createElement('button'),img=document.createElement('img');plane.className=`plane team-${pieceTeams[index]}`;plane.style.left=`${3+(index%2)*46}%`;plane.style.top=`${4+Math.floor(index/2)*45}%`;plane.type='button';plane.title=`移动${hero.name}`;plane.setAttribute('aria-label',`移动${hero.name}`);img.src=hero.image;img.alt='';plane.append(img);plane.addEventListener('click',()=>move(index));target.append(plane)})}
-function render(){const hero=heroes[state.hero];$('#mascotFace').src=hero.image;$('#mascotFace').alt=`${hero.name}文创玩偶`;$('#mascotName').textContent=hero.name;$('#mascotSpeech').textContent=hero.speech;$('#playerEmoji').src=hero.image;$('#playerName').textContent=hero.name;$('#starCount').textContent=state.stars;$('#mapTitle').textContent=maps[state.map].title;$('#mapGoal').textContent=maps[state.map].goal;$('#missionTitle').textContent=maps[state.map].mission;$('#missionProgress').textContent=`${Math.min(state.clues,2)} / 2 次线索发现`;$('#starTrack').style.width=`${Math.min(100,state.stars/3*100)}%`;document.querySelectorAll('.map-tabs button').forEach((b,i)=>b.classList.toggle('active',i===state.map));['shield','magnifier','horn'].forEach(name=>$('#'+name+'Count').textContent=state.tools[name]);const choices=$('#planeChoices');choices.className='plane-choices';choices.replaceChildren();state.tokens.forEach((position,index)=>{const hero=heroes[pieceTeams[index]],b=document.createElement('button'),img=document.createElement('img'),label=document.createElement('span');b.className=`plane-choice team-${pieceTeams[index]}`;img.src=hero.image;img.alt='';label.textContent=position<0?`${hero.short} · 机场`:position===cells.length-1?`${hero.short} · 到达`:`${hero.short} · 第 ${position+1} 格`;b.append(img,label);b.disabled=!state.waiting||!canMove(position);b.addEventListener('click',()=>move(index));choices.append(b)});renderStickers();renderPlanes()}
-function canMove(position){return position===-1?state.dice===6:position<cells.length-1&&position+state.dice<=cells.length-1}function toastMessage(text){toast.textContent=text;toast.classList.add('show');clearTimeout(window.t);window.t=setTimeout(()=>toast.classList.remove('show'),2200)}
-function roll(){if(state.rolling||state.waiting)return;state.rolling=true;$('#rollButton').disabled=true;$('#rollButton').classList.add('rolling');$('#turnHint').textContent='呼呼呼，骰子转起来啦！';setTimeout(()=>{state.dice=Math.floor(Math.random()*6)+1;$('#diceValue').textContent=state.dice;$('#rollButton').classList.remove('rolling');state.rolling=false;if(!state.tokens.some(canMove)){toastMessage('这次没有可移动的反诈伙伴，下一次加油！');endTurn();return}state.waiting=true;$('#rollStatus').textContent=`掷出 ${state.dice} 点，选一位反诈伙伴吧！`;$('#turnHint').textContent=state.dice===6?'太棒了！可以从反诈基地出发，还能再掷一次。':'选一位反诈伙伴，向安全星球出发！';render()},500)}
-function move(index){if(!state.waiting||!canMove(state.tokens[index]))return;if(state.tokens[index]===-1){state.tokens[index]=0;toastMessage(`${heroes[pieceTeams[index]].name}出发！`)}else state.tokens[index]+=state.dice;state.waiting=false;const landed=state.tokens[index];render();if(landed===cells.length-1){win();return}const [,name,type,event]=cells[landed];$('#rollStatus').textContent=`来到「${name}」`;if(type==='chest')openChest();else if(type==='help'){const bonus=state.tools.horn?4:2;if(state.tools.horn)state.tools.horn--;state.stars+=bonus;toastMessage(`你帮助了大家，获得 ${bonus} 颗安全星！`);afterMove()}else if(event)setTimeout(()=>openStory(event),250);else{state.stars++;toastMessage('安全通行，获得 1 颗安全星！');afterMove()}}
-function afterMove(){save();render();if(state.dice===6){$('#rollButton').disabled=false;$('#rollStatus').textContent='掷出 6 点，再来一次！';return}endTurn()}function endTurn(){state.waiting=false;$('#rollButton').disabled=false;$('#rollStatus').textContent='准备下一次冒险';$('#turnHint').textContent='掷出 6 点，让一位反诈伙伴出发！';render()}
-function openChest(){const gifts=[['🛡️','得到护盾！答错时可以保护一次。','shield'],['🔍','得到放大镜！可以点亮一条线索。','magnifier'],['📣','得到小喇叭！下一次帮助站奖励翻倍。','horn'],['⭐','发现安全星！','stars']];const gift=gifts[Math.floor(Math.random()*gifts.length)];if(gift[2]==='stars')state.stars+=3;else state.tools[gift[2]]++;modal('惊喜宝箱！',`<div class="result">${gift[0]} ${gift[1]}</div>`,'宝箱发现');afterMove()}
-function openStory(key){state.pending=true;const story=stories[key];$('#modalTag').textContent='线索挑战';$('#modalTitle').textContent=story.title;$('#dialogue').innerHTML=story.lines.map(line=>`<div class="bubble"><b>${line[0]}</b>${line[1]}</div>`).join('');$('#clueBox').innerHTML='<p>点一点，找出可疑线索</p><div class="clue-list"></div>';const list=$('#clueBox .clue-list');story.clues.forEach(text=>{const b=document.createElement('button');b.className='clue';b.textContent=text;b.addEventListener('click',()=>b.classList.toggle('active'));list.append(b)});const answers=$('#answers');answers.replaceChildren();story.answers.forEach((text,i)=>{const b=document.createElement('button');b.className='answer';b.textContent=`${String.fromCharCode(65+i)}. ${text}`;b.addEventListener('click',()=>answer(i,story,b));answers.append(b)});$('#resultBox').innerHTML='';$('#continueButton').textContent='继续冒险';$('#modalBackdrop').hidden=false}
-function answer(index,story,button){if(!state.pending)return;state.pending=false;const found=$('#clueBox').querySelectorAll('.active').length;[...$('#answers').children].forEach(b=>b.disabled=true);if(index===story.correct){button.classList.add('correct');state.stars+=found>=2?3:2;state.clues++;$('#resultBox').innerHTML=`<div class="result">太棒了！${story.tip}${found>=2?' 你还找到了关键线索！':''}</div>`;toastMessage('答对啦，安全星飞进背包！')}else if(state.tools.shield){state.tools.shield--;button.classList.add('wrong');$('#resultBox').innerHTML=`<div class="result">护盾保护了你一次！正确答案是：${story.answers[story.correct]}。${story.tip}</div>`;toastMessage('护盾闪闪发光，保护成功！')}else{$('#answers').children[story.correct].classList.add('correct');button.classList.add('wrong');$('#resultBox').innerHTML=`<div class="result">再记一次：${story.tip}</div>`;toastMessage('没关系，记住方法就是进步！')}afterMove()}
-function modal(title,html,tag){state.pending=false;$('#modalTag').textContent=tag;$('#modalTitle').textContent=title;$('#dialogue').innerHTML=html;$('#clueBox').innerHTML='';$('#answers').innerHTML='';$('#resultBox').innerHTML='';$('#continueButton').textContent='继续冒险';$('#modalBackdrop').hidden=false}function closeModal(){if(state.pending){state.pending=false;afterMove()}$('#modalBackdrop').hidden=true}
-function win(){state.stars+=5;const next=Math.min(2,state.map+1);save();modal('平安终点到达！',`<div class="result">🌈 你点亮了「${maps[state.map].title}」！获得 5 颗安全星和一枚勇敢贴纸。${next!==state.map?' 下一站已经解锁啦！':''}</div>`,'冒险成功');state.map=next;render()}
-function renderStickers(){const all=[['🌟','安全新手',state.stars>=3],['🔎','线索达人',state.clues>=2],['🤝','热心伙伴',state.stars>=8],['🏆','星球卫士',state.tokens.some(t=>t===cells.length-1)]];$('#stickers').innerHTML=all.map(s=>`<div class="sticker ${s[2]?'unlocked':''}"><span>${s[0]}</span>${s[1]}</div>`).join('')}
-function save(){localStorage.setItem('antiFraudKids',JSON.stringify({stars:state.stars,clues:state.clues,map:state.map}))}function load(){try{Object.assign(state,JSON.parse(localStorage.getItem('antiFraudKids')||'{}'))}catch{}}
-$('#rollButton').addEventListener('click',roll);$('#restartButton').addEventListener('click',()=>{state.tokens=[-1,-1,-1,-1];state.dice=0;state.waiting=false;$('#diceValue').textContent='✦';endTurn();toastMessage('新的巡逻开始啦！')});$('#helpButton').addEventListener('click',()=>modal('冒险小秘籍','<div class="result">① 掷出 6 点，反诈伙伴才能从基地出发。<br>② 看到 ⚠️ 或 🔎，认真找线索再选择。<br>③ 🎁 宝箱会送你安全道具。<br>④ 先让一位反诈伙伴抵达 🏆 就通关！</div>','怎么玩'));$('#closeModal').addEventListener('click',closeModal);$('#continueButton').addEventListener('click',closeModal);$('#modalBackdrop').addEventListener('click',e=>{if(e.target===$('#modalBackdrop'))closeModal()});$('#heroPicker').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;state.hero=b.dataset.hero;document.querySelectorAll('#heroPicker button').forEach(x=>x.classList.toggle('selected',x===b));render()});$('#mapTabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;state.map=Number(b.dataset.map);render();toastMessage(`欢迎来到${maps[state.map].title}！`)});$('#magnifierTool').addEventListener('click',()=>{if(!state.tools.magnifier)return toastMessage('放大镜已经用完啦！');const clue=$('#clueBox .clue:not(.active)');if(!clue)return toastMessage('遇到线索挑战时再使用放大镜吧！');clue.classList.add('active');state.tools.magnifier--;render();toastMessage('放大镜点亮了一条线索！')});load();buildBoard();render();
+
+function buildBoard() {
+  tiles.forEach((tile, index) => {
+    const [row, column] = perimeter[index];
+    const cell = document.createElement("button");
+    const specialClass = index === 0 ? "start" : tile.type;
+    cell.type = "button";
+    cell.className = `cell ${specialClass}`;
+    cell.dataset.index = index;
+    cell.style.gridArea = `${row} / ${column}`;
+    cell.setAttribute("aria-label", `第 ${index + 1} 格，${tile.name}`);
+    cell.innerHTML = `<span class="cell-num">${String(index + 1).padStart(2, "0")}</span><span class="cell-icon">${tile.icon}</span><span class="cell-name">${tile.name}</span><span class="cell-badge">${tile.type === "trap" ? "诈" : tile.type === "choice" ? "择" : tile.type === "event" ? "事" : ""}</span>`;
+    cell.addEventListener("click", () => previewTile(index));
+    $("#board").append(cell);
+  });
+  heroes.forEach((hero, index) => {
+    const pawn = document.createElement("div");
+    pawn.className = "pawn";
+    pawn.id = `pawn-${hero.id}`;
+    pawn.style.setProperty("--pawn-offset-x", `${(index % 2) * 18 - 9}px`);
+    pawn.style.setProperty("--pawn-offset-y", `${Math.floor(index / 2) * 15 - 8}px`);
+    pawn.innerHTML = `<img src="${hero.image}" alt="" />`;
+    pawn.hidden = true;
+    $("#board").append(pawn);
+  });
+}
+
+function buildSetup() {
+  const root = $("#characterOptions");
+  heroes.forEach(hero => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "character-option selected";
+    button.dataset.hero = hero.id;
+    button.innerHTML = `<i>✓</i><img src="${hero.image}" alt="" /><b>${hero.name}</b><span>${hero.title}</span>`;
+    if (!state.selectedHeroes.has(hero.id)) button.classList.remove("selected");
+    button.addEventListener("click", () => {
+      if (state.selectedHeroes.has(hero.id)) {
+        if (state.selectedHeroes.size <= 2) return toast("至少需要两位玩家");
+        state.selectedHeroes.delete(hero.id);
+      } else {
+        state.selectedHeroes.add(hero.id);
+      }
+      buildSetupSelection();
+    });
+    root.append(button);
+  });
+}
+
+function buildSetupSelection() {
+  $$(".character-option").forEach(button => {
+    const selected = state.selectedHeroes.has(button.dataset.hero);
+    button.classList.toggle("selected", selected);
+    $("i", button).textContent = selected ? "✓" : "+";
+  });
+}
+
+function tileCategory(tile, index) {
+  if ([0, 10, 20, 30].includes(index)) return "四角地标";
+  return { safe: "安全实践格", trap: "诈骗陷阱格", choice: "情景抉择格", event: "事件抽取格", special: "特殊格" }[tile.type];
+}
+
+function previewTile(index) {
+  if (!$("#modalOverlay").hidden || !$("#setupOverlay").hidden) return;
+  const tile = tiles[index];
+  showModal({
+    icon: tile.icon, type: `第 ${index + 1} 格 · ${tileCategory(tile, index)}`, title: tile.name,
+    location: "棋格预览 · 点击棋盘上的其他格子也可查看",
+    body: `<p>${tile.scene || tile.lesson || tile.summary}</p><div class="quote">${tile.summary}</div>`,
+    choices: [], locked: false, continueText: "返回棋盘"
+  });
+}
+
+function startGame() {
+  state.players = heroes.filter(hero => state.selectedHeroes.has(hero.id)).map(hero => ({
+    hero, safety: 100, position: 0, rescue: true, clues: 0, stamps: 0, detained: false, eliminated: false
+  }));
+  state.started = true;
+  state.finished = false;
+  state.current = Math.floor(Math.random() * state.players.length);
+  state.round = 1;
+  state.phase = "roll";
+  state.doublesStreak = 0;
+  state.extraRoll = false;
+  state.cases = new Set();
+  state.logs = [];
+  state.secondsLeft = 28 * 60;
+  state.eventIndex = Math.floor(Math.random() * eventDeck.length);
+  $("#setupOverlay").hidden = true;
+  addLog(`抽签结果：${currentPlayer().hero.name}先行`);
+  addLog(`调查队已集结，共 ${state.players.length} 人`);
+  if (state.timer) clearInterval(state.timer);
+  if (state.mode === "timed") {
+    state.timer = setInterval(() => {
+      if (!state.started || state.finished) return;
+      state.secondsLeft--;
+      updateTimer();
+      if (state.secondsLeft <= 0) endGame("time");
+    }, 1000);
+  }
+  render();
+  beginTurn();
+  toast(`${currentPlayer().hero.name}先行，调查队出发！`);
+  tone(520, .1);
+}
+
+function currentPlayer() { return state.players[state.current]; }
+
+function render() {
+  renderPawns();
+  renderPlayers();
+  renderCurrent();
+  renderCases();
+  updateTimer();
+  $("#roundLabel").textContent = state.started ? `第 ${state.round} 轮 · ${state.phase === "moving" ? "移动中" : state.phase === "resolve" ? "处理事件" : "行动中"}` : "等待开局";
+  $("#modeLabel").textContent = state.mode === "standard" ? "标准淘汰模式" : "28 分钟活动模式";
+  $("#rollButton").disabled = !state.started || state.finished || state.phase !== "roll" || Boolean(currentPlayer()?.detained);
+}
+
+function renderPawns() {
+  heroes.forEach(hero => {
+    const pawn = $(`#pawn-${hero.id}`);
+    const playerIndex = state.players.findIndex(player => player.hero.id === hero.id);
+    if (playerIndex < 0) {
+      pawn.hidden = true;
+      return;
+    }
+    const player = state.players[playerIndex];
+    const [row, column] = perimeter[player.position];
+    pawn.hidden = false;
+    pawn.style.left = `calc(${((column - .5) / 11) * 100}% + 0px)`;
+    pawn.style.top = `calc(${((row - .5) / 11) * 100}% + 0px)`;
+    pawn.classList.toggle("current", playerIndex === state.current && !state.finished);
+    pawn.classList.toggle("eliminated", player.eliminated);
+  });
+  $$(".cell").forEach((cell, index) => cell.classList.toggle("active-cell", Boolean(state.started && currentPlayer()?.position === index)));
+}
+
+function renderPlayers() {
+  const list = $("#playersList");
+  list.replaceChildren();
+  state.players.forEach((player, index) => {
+    const row = document.createElement("div");
+    row.className = `player-row ${index === state.current && !state.finished ? "current" : ""} ${player.eliminated ? "out" : ""}`;
+    row.style.setProperty("--player-color", player.hero.color);
+    const status = player.eliminated ? "已退出对局" : player.detained ? "滞留中" : `第 ${player.position + 1} 格 · 线索 ${player.clues}`;
+    row.innerHTML = `<img src="${player.hero.image}" alt="" /><div><b>${player.hero.name}</b><small>${status}</small></div><div class="player-score">${player.safety}<small>安全值</small></div>`;
+    list.append(row);
+  });
+}
+
+function renderCurrent() {
+  const player = currentPlayer();
+  if (!player) return;
+  $("#turnAvatar").src = player.hero.image;
+  $("#turnAvatar").alt = player.hero.name;
+  $("#turnName").textContent = player.hero.name;
+  $("#turnMeta").textContent = player.detained ? "陷入骗局滞留，选择解除方式" : `位于第 ${player.position + 1} 格 · ${tiles[player.position].name}`;
+  $("#turnSafety").textContent = player.safety;
+  $("#safetyBar").style.width = `${Math.max(0, Math.min(100, player.safety))}%`;
+  $("#rescueStatus").textContent = `☎ 96110 × ${player.rescue ? 1 : 0}`;
+  $("#clueStatus").textContent = `◆ 调查线索 × ${player.clues}`;
+  $("#stampStatus").textContent = `章 多方核验 × ${player.stamps}`;
+  $("#turnCard").style.background = `linear-gradient(140deg, ${player.hero.color}, #102a43)`;
+}
+
+function renderCases() {
+  const count = Math.min(8, state.cases.size);
+  $("#caseCount").textContent = `${count} / 8`;
+  $("#caseProgress").style.width = `${count / 8 * 100}%`;
+  $("#caseHint").textContent = count >= 8 ? "调查簿已完成：你已识别八类高发骗局。" : count ? `已识破：${[...state.cases].slice(-3).join("、")}` : "识破不同类型的骗局，完善调查簿。";
+}
+
+function updateTimer() {
+  if (state.mode !== "timed") return $("#timerLabel").textContent = "不限时";
+  const min = String(Math.floor(state.secondsLeft / 60)).padStart(2, "0");
+  const sec = String(state.secondsLeft % 60).padStart(2, "0");
+  $("#timerLabel").textContent = `${min}:${sec}`;
+}
+
+function beginTurn() {
+  if (state.finished) return;
+  const player = currentPlayer();
+  state.phase = player.detained ? "detained" : "roll";
+  state.extraRoll = false;
+  state.doublesStreak = 0;
+  $("#detentionActions").hidden = !player.detained;
+  $("#useRescueButton").disabled = !player.rescue;
+  $("#rollButton").hidden = player.detained;
+  $("#turnPrompt").textContent = player.detained
+    ? "本回合不能掷骰：等待一回合，或消耗 96110 求助卡立即解除。"
+    : `${player.hero.name}，掷出双骰沿棋盘顺时针调查。`;
+  render();
+}
+
+async function rollDice() {
+  if (state.phase !== "roll" || state.finished) return;
+  state.phase = "rolling";
+  render();
+  const d1 = Math.ceil(Math.random() * 6);
+  const d2 = Math.ceil(Math.random() * 6);
+  $(".die", $("#dieOne"))?.classList?.add("rolling");
+  $("#dieOne").classList.add("rolling");
+  $("#dieTwo").classList.add("rolling");
+  tone(260, .07);
+  await wait(720);
+  $("#dieOne").classList.remove("rolling");
+  $("#dieTwo").classList.remove("rolling");
+  $("#dieOne span").textContent = "⚀⚁⚂⚃⚄⚅"[d1 - 1];
+  $("#dieTwo span").textContent = "⚀⚁⚂⚃⚄⚅"[d2 - 1];
+  const doubles = d1 === d2;
+  state.extraRoll = doubles;
+  state.doublesStreak = doubles ? state.doublesStreak + 1 : 0;
+  addLog(`${currentPlayer().hero.name}掷出 ${d1}+${d2}${doubles ? "（对子）" : ""}`);
+  if (state.doublesStreak >= 3) {
+    state.extraRoll = false;
+    currentPlayer().position = 20;
+    currentPlayer().detained = true;
+    render();
+    addLog(`${currentPlayer().hero.name}连续三次对子，进入滞留区`);
+    showModal({
+      icon: "⏸", type: "特殊状态", title: "连续三次对子：陷入骗局滞留",
+      location: "直接传送到第 21 格 · 本次不经过起点",
+      body: "<p>连续的顺利容易让人放松警惕。你被模拟骗局的话术困住，本回合立即结束。</p><div class='quote'>下次轮到你时，可等待一回合，或使用 96110 求助卡立即解除。</div>",
+      choices: [], locked: true, continueText: "结束本回合", onContinue: nextTurn
+    });
+    return;
+  }
+  await movePlayer(d1 + d2);
+}
+
+async function movePlayer(steps) {
+  state.phase = "moving";
+  $("#turnPrompt").textContent = `前进 ${steps} 格，沿途留意风险信号……`;
+  render();
+  const player = currentPlayer();
+  for (let step = 0; step < steps; step++) {
+    player.position = (player.position + 1) % tiles.length;
+    if (player.position === 0) {
+      player.safety += 10;
+      addLog(`${player.hero.name}经过马蹄岗复盘站，安全值 +10`);
+      tone(620, .05);
+    }
+    renderPawns();
+    renderCurrent();
+    await wait(125);
+  }
+  state.phase = "resolve";
+  render();
+  resolveTile(player.position);
+}
+
+function resolveTile(index) {
+  const tile = tiles[index];
+  const player = currentPlayer();
+  const location = `第 ${index + 1} 格 · ${tileCategory(tile, index)}`;
+  if (tile.type === "safe" || (tile.type === "special" && ["start", "station"].includes(tile.kind))) {
+    const reward = index === 0 ? 0 : tile.reward;
+    if (reward) player.safety += reward;
+    addLog(`${player.hero.name}抵达${tile.name}${reward ? `，安全值 +${reward}` : ""}`);
+    tone(560, .12);
+    showModal({
+      icon: tile.icon, type: "安全实践", title: tile.name, location,
+      body: `<p>${tile.lesson}</p><div class="quote">${reward ? `安全值 +${reward}` : "完成一轮复盘，继续保持警惕。"}</div>`,
+      choices: [], locked: true, continueText: turnContinueText(), onContinue: finishResolution
+    });
+    return render();
+  }
+  if (tile.type === "trap") return openTrap(tile, location);
+  if (tile.type === "choice") return openChoice(tile, location);
+  if (tile.type === "event" || (tile.type === "special" && tile.kind === "event")) return drawEvent(location);
+  if (tile.kind === "detention") {
+    addLog(`${player.hero.name}路过滞留区，不受处罚`);
+    showModal({
+      icon: tile.icon, type: "路过参观", title: tile.name, location,
+      body: `<p>${tile.lesson}</p><div class="quote">这次是正常落格，不属于滞留状态，下回合照常行动。</div>`,
+      choices: [], locked: true, continueText: turnContinueText(), onContinue: finishResolution
+    });
+  }
+}
+
+function openTrap(tile, location) {
+  showModal({
+    icon: tile.icon, type: "诈骗陷阱", title: tile.name, location,
+    body: `<div class="quote">“${tile.scene}”</div><div class="clue-callout"><span>停：不要被催促</span><span>查：核验身份与账户</span><span>问：联系官方或亲友</span></div>`,
+    locked: true,
+    choices: [
+      { label: "A", text: "相信对方说法并按要求操作", sub: `可能损失 ${tile.penalty} 安全值`, action: () => resolveDecision(false, -tile.penalty, tile) },
+      { label: "B", text: "停止操作，通过官方渠道多方核验", sub: "心理成本 -5，识骗奖励 +5，净变化 0", action: () => resolveDecision(true, 0, tile) }
+    ]
+  });
+}
+
+function openChoice(tile, location) {
+  const good = { label: tile.safeFirst ? "A" : "B", text: tile.safeText, sub: "安全值 +8，并获得 1 条调查线索", action: () => resolveDecision(true, 8, tile) };
+  const bad = { label: tile.safeFirst ? "B" : "A", text: tile.riskText, sub: "安全值 -15", action: () => resolveDecision(false, -15, tile) };
+  showModal({
+    icon: tile.icon, type: "情景抉择", title: tile.name, location,
+    body: `<div class="quote">“${tile.scene}”</div><p>没有死记硬背的标准口号，请根据可核验的信息作出选择。</p>`,
+    locked: true, choices: tile.safeFirst ? [good, bad] : [bad, good]
+  });
+}
+
+function resolveDecision(good, delta, tile) {
+  disableChoices(good);
+  const player = currentPlayer();
+  if (good) {
+    if (delta) player.safety += delta;
+    addClue(player);
+    state.cases.add(tile.caseId);
+    addLog(`${player.hero.name}识破“${tile.caseId}”${delta ? `，安全值 +${delta}` : ""}`);
+    showFeedback(true, `识别成功：${tile.clue}`, `你抓住了“${tile.clue}”这一风险信号。先停、再查、后行动，比凭感觉更可靠。`);
+    tone(640, .12);
+    prepareContinue();
+  } else {
+    addLog(`${player.hero.name}在“${tile.caseId}”情景中承担风险`);
+    showFeedback(false, "风险发生", `诈骗常利用信任、紧迫感和高收益诱惑。此次将影响 ${Math.abs(delta)} 点安全值。`);
+    applyImpact(delta, tile.caseId, prepareContinue);
+  }
+  render();
+}
+
+function drawEvent(location) {
+  const card = eventDeck[state.eventIndex % eventDeck.length];
+  state.eventIndex = (state.eventIndex + 5) % eventDeck.length;
+  showModal({
+    icon: card.icon, type: card.positive ? "正向反诈事件卡" : "负向扰动事件卡", title: card.title, location,
+    body: `<p>${card.text}</p><div class="quote">${card.delta > 0 ? "+" : ""}${card.delta} 安全值</div>`,
+    choices: [], locked: true
+  });
+  const player = currentPlayer();
+  if (card.delta > 0) {
+    player.safety += card.delta;
+    if (card.clue) addClue(player);
+    addLog(`${player.hero.name}抽到“${card.title}”，安全值 +${card.delta}`);
+    tone(590, .12);
+    prepareContinue();
+  } else {
+    addLog(`${player.hero.name}抽到“${card.title}”`);
+    applyImpact(card.delta, card.caseId, prepareContinue);
+  }
+  render();
+}
+
+function addClue(player) {
+  player.clues++;
+  if (player.clues % 3 === 0) {
+    player.stamps++;
+    player.safety += 5;
+    addLog(`${player.hero.name}集齐 3 条线索，获得多方核验章和 5 点安全值`);
+    toast("集齐 3 条线索：多方核验章 +1，安全值 +5");
+  }
+}
+
+function applyImpact(delta, reason, done) {
+  const player = currentPlayer();
+  if (delta <= -20 && player.rescue) {
+    $("#feedback").hidden = false;
+    $("#feedback").className = "feedback loss";
+    $("#feedback").innerHTML = `<strong>96110 求助卡可以生效</strong>这次扣分达到 20 点。请在损失结算前决定是否使用；每人整局仅有一次。`;
+    const choices = $("#choiceList");
+    choices.replaceChildren();
+    choices.append(
+      makeChoice({ label: "☎", text: "立即使用 96110 求助卡", sub: "抵消本次全部扣分，卡牌消耗", action: () => {
+        player.rescue = false;
+        addLog(`${player.hero.name}使用 96110 求助卡，抵消“${reason}”损失`);
+        disableChoices(true);
+        showFeedback(true, "预警止损成功", "你在扣分生效前及时求助，避免了本次全部损失。");
+        tone(720, .16);
+        done();
+        render();
+      }}),
+      makeChoice({ label: "!", text: "保留求助卡，承担本次后果", sub: `安全值 ${delta}`, action: () => {
+        disableChoices(false);
+        settleDelta(delta, reason);
+        done();
+      }})
+    );
+    return;
+  }
+  settleDelta(delta, reason);
+  done();
+}
+
+function settleDelta(delta, reason) {
+  const player = currentPlayer();
+  player.safety += delta;
+  addLog(`${player.hero.name}因“${reason}”安全值 ${delta}`);
+  if (player.safety <= 0) {
+    player.eliminated = true;
+    addLog(`${player.hero.name}安全值归零，退出对局`);
+    showFeedback(false, "本局遭受财产损失", "安全值已归零，本角色退出当前对局。反诈知识不等于永远不会踩坑，复盘和求助同样重要。");
+  }
+  tone(180, .18);
+  render();
+}
+
+function prepareContinue() {
+  $("#continueButton").hidden = false;
+  $("#continueButton").textContent = turnContinueText();
+  state.modalContinue = finishResolution;
+}
+
+function turnContinueText() { return state.extraRoll ? "对子！处理完毕后再掷一次" : "完成处理，交给下一位"; }
+
+function finishResolution() {
+  closeModal();
+  render();
+  if (!state.players.some(player => !player.eliminated)) {
+    endGame("none");
+    return;
+  }
+  if (checkStandardWinner()) return;
+  if (currentPlayer().eliminated) return nextTurn();
+  if (state.extraRoll) {
+    state.phase = "roll";
+    $("#turnPrompt").textContent = "掷出对子：完成当前格效果后，可以再掷一次。";
+    render();
+    return;
+  }
+  nextTurn();
+}
+
+function nextTurn() {
+  if (state.finished) return;
+  const previous = state.current;
+  let next = previous;
+  do next = (next + 1) % state.players.length;
+  while (state.players[next].eliminated && next !== previous);
+  if (next <= previous) state.round++;
+  state.current = next;
+  beginTurn();
+}
+
+function checkStandardWinner() {
+  if (state.mode !== "standard") return false;
+  const alive = state.players.filter(player => !player.eliminated);
+  if (alive.length > 1) return false;
+  endGame("last");
+  return true;
+}
+
+function endGame(reason) {
+  if (state.finished) return;
+  state.finished = true;
+  state.phase = "finished";
+  if (state.timer) clearInterval(state.timer);
+  const active = state.players.filter(player => !player.eliminated);
+  const rankingPool = active.length ? active : state.players;
+  const highest = Math.max(...rankingPool.map(player => player.safety));
+  const winners = rankingPool.filter(player => player.safety === highest);
+  const title = winners.map(player => player.hero.name).join("、");
+  addLog(reason === "time" ? "28 分钟活动时间结束" : "标准模式决出最后留场者");
+  showModal({
+    icon: "🏆", type: "本局结算", title: `${title}获胜`,
+    location: reason === "time" ? "活动模式 · 按当前安全值结算" : "标准模式 · 最后留在场上的调查员",
+    body: `<p>最高安全值：<b>${highest}</b>。本局共识破 ${state.cases.size} 类骗局。</p><div class="quote">真正的胜利，是把“停一停、查一查、问一问”带回生活。</div>`,
+    choices: [], locked: true, continueText: "查看最终棋盘", onContinue: () => { closeModal(); render(); }
+  });
+  render();
+}
+
+function waitDetention() {
+  const player = currentPlayer();
+  player.detained = false;
+  addLog(`${player.hero.name}在滞留区等待一回合，下次恢复行动`);
+  toast("本回合用于冷静复盘，下次恢复正常行动");
+  nextTurn();
+}
+
+function useRescueForDetention() {
+  const player = currentPlayer();
+  if (!player.rescue) return;
+  player.rescue = false;
+  player.detained = false;
+  state.phase = "roll";
+  $("#detentionActions").hidden = true;
+  $("#rollButton").hidden = false;
+  $("#turnPrompt").textContent = "96110 求助卡已使用，本回合可以正常掷骰。";
+  addLog(`${player.hero.name}使用 96110 求助卡解除滞留`);
+  tone(720, .14);
+  render();
+}
+
+function showModal({ icon, type, title, location = "", body = "", choices = [], locked = true, continueText = "", onContinue = null }) {
+  state.modalLocked = locked;
+  state.modalContinue = onContinue;
+  $("#modalIcon").textContent = icon;
+  $("#modalType").textContent = type;
+  $("#modalTitle").textContent = title;
+  $("#modalLocation").textContent = location;
+  $("#modalLocation").hidden = !location;
+  $("#storyCopy").innerHTML = body;
+  $("#feedback").hidden = true;
+  $("#feedback").className = "feedback";
+  $("#feedback").innerHTML = "";
+  const list = $("#choiceList");
+  list.replaceChildren();
+  choices.forEach(item => list.append(makeChoice(item)));
+  $("#modalClose").hidden = locked;
+  $("#continueButton").hidden = !continueText;
+  $("#continueButton").textContent = continueText;
+  if (continueText && !onContinue) state.modalContinue = closeModal;
+  $("#modalOverlay").hidden = false;
+}
+
+function makeChoice(item) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "choice-button";
+  button.innerHTML = `<b>${item.label}</b><span>${item.text}<small>${item.sub || ""}</small></span>`;
+  button.addEventListener("click", item.action, { once: true });
+  return button;
+}
+
+function disableChoices(good) {
+  $$(".choice-button", $("#choiceList")).forEach(button => button.disabled = true);
+  const clicked = document.activeElement?.closest?.(".choice-button");
+  if (clicked) clicked.classList.add(good ? "good" : "bad");
+}
+
+function showFeedback(good, title, text) {
+  const feedback = $("#feedback");
+  feedback.hidden = false;
+  feedback.className = `feedback ${good ? "" : "loss"}`;
+  feedback.innerHTML = `<strong>${title}</strong>${text}`;
+}
+
+function closeModal() {
+  $("#modalOverlay").hidden = true;
+  state.modalLocked = false;
+  state.modalContinue = null;
+}
+
+function addLog(text) {
+  state.logs.unshift(text);
+  state.logs = state.logs.slice(0, 20);
+  $("#actionLog").innerHTML = state.logs.map(item => `<li>${item}</li>`).join("");
+}
+
+function toast(text) {
+  const el = $("#toast");
+  el.textContent = text;
+  el.classList.add("show");
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => el.classList.remove("show"), 2500);
+}
+
+let audioContext;
+function tone(frequency, duration) {
+  if (!state.sound) return;
+  try {
+    audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    oscillator.frequency.value = frequency;
+    oscillator.type = "sine";
+    gain.gain.setValueAtTime(.025, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.0001, audioContext.currentTime + duration);
+    oscillator.connect(gain).connect(audioContext.destination);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + duration);
+  } catch {}
+}
+
+function openRules() {
+  $("#rulesDrawer").classList.add("open");
+  $("#rulesDrawer").setAttribute("aria-hidden", "false");
+  $("#drawerMask").hidden = false;
+}
+function closeRules() {
+  $("#rulesDrawer").classList.remove("open");
+  $("#rulesDrawer").setAttribute("aria-hidden", "true");
+  $("#drawerMask").hidden = true;
+}
+
+function openSetup() {
+  if (state.started && !state.finished && !confirm("新对局会结束当前进度，确定继续吗？")) return;
+  if (state.timer) clearInterval(state.timer);
+  closeModal();
+  $("#setupOverlay").hidden = false;
+}
+
+function updateCamera(delta = 0) {
+  state.spin += delta;
+  document.documentElement.style.setProperty("--camera-spin", `${state.spin}deg`);
+  document.documentElement.style.setProperty("--camera-counter-spin", `${-state.spin}deg`);
+}
+
+$("#rollButton").addEventListener("click", rollDice);
+$("#waitButton").addEventListener("click", waitDetention);
+$("#useRescueButton").addEventListener("click", useRescueForDetention);
+$("#startButton").addEventListener("click", startGame);
+$("#newGameButton").addEventListener("click", openSetup);
+$("#rulesButton").addEventListener("click", openRules);
+$("#drawerClose").addEventListener("click", closeRules);
+$("#drawerMask").addEventListener("click", closeRules);
+$("#modalClose").addEventListener("click", () => { if (!state.modalLocked) closeModal(); });
+$("#continueButton").addEventListener("click", () => {
+  const action = state.modalContinue;
+  if (action) action();
+  else closeModal();
+});
+$("#modeOptions").addEventListener("click", event => {
+  const button = event.target.closest("button");
+  if (!button) return;
+  state.mode = button.dataset.mode;
+  $$("#modeOptions button").forEach(item => item.classList.toggle("selected", item === button));
+});
+$("#soundButton").addEventListener("click", () => {
+  state.sound = !state.sound;
+  $("#soundButton").textContent = `音效：${state.sound ? "开" : "关"}`;
+  if (state.sound) tone(520, .08);
+});
+$("#viewButton").addEventListener("click", () => {
+  state.topView = !state.topView;
+  document.body.classList.toggle("top-view", state.topView);
+  $("#viewButton").textContent = state.topView ? "立体棋盘" : "俯视棋盘";
+});
+$("#rotateLeft").addEventListener("click", () => updateCamera(-8));
+$("#rotateRight").addEventListener("click", () => updateCamera(8));
+$("#resetCamera").addEventListener("click", () => { state.spin = -2; updateCamera(0); });
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    if ($("#rulesDrawer").classList.contains("open")) closeRules();
+    else if (!state.modalLocked) closeModal();
+  }
+});
+
+buildBoard();
+buildSetup();
+updateCamera(0);
+render();

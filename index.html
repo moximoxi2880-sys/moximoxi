@@ -3,54 +3,157 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#5d58df" />
-  <title>反诈星球飞行棋</title>
+  <meta name="theme-color" content="#102a43" />
+  <meta name="description" content="寻乌定制反诈平安闯关棋：四人本地同屏、40 格立体棋盘、情景抉择与反诈事件。" />
+  <title>反诈平安闯关棋｜寻乌定制版</title>
   <link rel="icon" href="favicon.svg" />
   <link rel="preload" as="image" href="assets/characters/mascot-red.png" />
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="character-responsive.css" />
 </head>
 <body>
-  <div class="sky-shape cloud-a">☁️</div><div class="sky-shape cloud-b">☁️</div><div class="sky-shape star-a">✦</div>
-  <header><a class="brand" href="#top"><span>🛡️</span>反诈星球飞行棋</a><div class="header-right"><span>无广告 · 无付费 · 一起守护</span><button id="helpButton" type="button">怎么玩？</button></div></header>
-  <main id="top">
-    <section class="welcome">
-      <div><p class="eyebrow">法治青春中国行 · 少年反诈小队</p><h1>和小伙伴一起<br /><em>打败“骗局怪”！</em></h1><p>掷骰子、开宝箱、找线索。学会保护自己，也帮助家人和朋友。</p></div>
-      <div class="mascot-card"><img id="mascotFace" src="assets/characters/mascot-red.png" alt="红色反诈文创玩偶" /><div><b id="mascotName">橙小盾队长</b><p id="mascotSpeech">“看到可疑消息，先翻开防诈指南！”</p></div></div>
-    </section>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="#game"><span class="brand-mark">寻</span><span>反诈平安闯关棋<small>寻乌定制版 · 法治科普实践</small></span></a>
+    <nav aria-label="页面操作">
+      <button class="nav-button" id="viewButton" type="button">俯视棋盘</button>
+      <button class="nav-button" id="rulesButton" type="button">规则手册</button>
+      <button class="nav-button danger" id="newGameButton" type="button">新对局</button>
+    </nav>
+  </header>
 
-    <section class="adventure-panel">
-      <div class="map-tabs" id="mapTabs">
-        <button class="active" data-map="0"><span>🏫</span>彩虹校园<i>第 1 站</i></button>
-        <button data-map="1"><span>🏘️</span>阳光社区<i>第 2 站</i></button>
-        <button data-map="2"><span>🌐</span>网络星球<i>第 3 站</i></button>
+  <main id="game">
+    <section class="hero-banner">
+      <div class="hero-copy">
+        <p class="kicker">红土寻乌 · 守好百姓钱袋子</p>
+        <h1>走一程寻乌乡野，<br /><em>练一身识骗本领。</em></h1>
+        <p class="hero-lead">没有调查，没有发言权；不轻信、不转账，多方核验再行动。</p>
+        <div class="hero-tags"><span>40 格环形闯关</span><span>2–4 人同屏</span><span>双骰回合制</span><span>三维沉浸棋盘</span></div>
       </div>
-      <div class="adventure-copy"><b id="mapTitle">彩虹校园：守护同学群</b><span id="mapGoal">收集 3 颗安全星星，就能点亮校园防护罩。</span><div class="star-track"><i id="starTrack"></i></div></div>
+      <div class="mascot-lineup" aria-label="四位寻乌文创角色">
+        <figure><img src="assets/characters/mascot-red.png" alt="红盾调查员" /><figcaption>红盾调查员</figcaption></figure>
+        <figure><img src="assets/characters/mascot-blue.png" alt="蜜桔小法" /><figcaption>蜜桔小法</figcaption></figure>
+        <figure><img src="assets/characters/mascot-green.png" alt="柿蒂阿婆" /><figcaption>柿蒂阿婆</figcaption></figure>
+        <figure><img src="assets/characters/mascot-purple.png" alt="桃桃普法员" /><figcaption>桃桃普法员</figcaption></figure>
+      </div>
     </section>
 
-    <section class="game-layout" id="game">
-      <article class="game-card">
-        <div class="game-heading"><div><p class="eyebrow">安全巡逻棋盘</p><h2><img id="playerEmoji" src="assets/characters/mascot-red.png" alt="" /> <span id="playerName">橙小盾队长</span>的冒险</h2></div><div class="score-pill">⭐ <b id="starCount">0</b> 安全星</div></div>
-        <div class="board-shell"><div class="board" id="board"></div><div class="board-center"><span>反诈<br />星球</span><small>勇敢 · 冷静 · 求助</small></div></div>
-        <div class="board-legend"><span>🎁 宝箱</span><span>⚠️ 骗局怪</span><span>🔎 线索站</span><span>🤝 守护站</span></div>
+    <section class="game-grid">
+      <article class="board-panel">
+        <div class="board-toolbar">
+          <div><span class="status-dot"></span><b id="roundLabel">等待开局</b><small id="modeLabel">标准淘汰模式</small></div>
+          <div class="camera-controls" aria-label="棋盘视角控制">
+            <button id="rotateLeft" type="button" title="向左旋转">↶</button>
+            <button id="resetCamera" type="button" title="重置视角">◇</button>
+            <button id="rotateRight" type="button" title="向右旋转">↷</button>
+          </div>
+        </div>
+
+        <div class="scene" id="scene">
+          <div class="board-3d" id="board">
+            <div class="center-landscape" aria-hidden="true">
+              <div class="mountain mountain-a"></div><div class="mountain mountain-b"></div>
+              <div class="sun-seal">寻乌</div>
+              <div class="orchard orchard-a">● ● ●</div><div class="orchard orchard-b">● ●</div>
+              <div class="center-plaque">
+                <span>反诈平安闯关棋</span>
+                <strong>红土寻乌 · 守好百姓钱袋子</strong>
+                <small>调查 · 核验 · 求助 · 止损</small>
+              </div>
+              <div class="card-deck"><i></i><i></i><b>反诈<br />事件卡</b></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="legend" aria-label="棋格图例">
+          <span><i class="blue"></i>安全实践</span><span><i class="red"></i>诈骗陷阱</span>
+          <span><i class="yellow"></i>情景抉择</span><span><i class="orange"></i>事件抽取</span>
+          <span><i class="navy"></i>四角地标</span><small>提示：可点击任意棋格查看完整情景</small>
+        </div>
       </article>
 
-      <aside class="side-panel">
-        <section class="hero-picker"><p>选择你的反诈队长</p><div id="heroPicker"><button data-hero="red" class="selected" aria-label="选择橙小盾队长"><img src="assets/characters/mascot-red.png" alt="" /><span>红盾</span></button><button data-hero="blue" aria-label="选择蜜桔小法"><img src="assets/characters/mascot-blue.png" alt="" /><span>小法</span></button><button data-hero="green" aria-label="选择柿蒂阿婆"><img src="assets/characters/mascot-green.png" alt="" /><span>阿婆</span></button><button data-hero="purple" aria-label="选择桃桃普法员"><img src="assets/characters/mascot-purple.png" alt="" /><span>桃桃</span></button></div></section>
-        <section class="mission"><p>今日小任务</p><b id="missionTitle">帮同学识破陌生链接</b><span id="missionProgress">0 / 2 次线索发现</span></section>
-        <section class="dice-area"><p id="turnHint">掷出 6 点，让一位反诈伙伴出发！</p><button class="dice" id="rollButton" type="button"><span id="diceValue">✦</span></button><b id="rollStatus">准备出发</b></section>
-        <section class="plane-select"><p>选择要移动的反诈伙伴</p><div id="planeChoices"></div></section>
-        <section class="toolbox"><p>我的安全背包</p><div><button id="shieldTool" type="button" title="答错时保护一次">🛡️<b id="shieldCount">1</b><span>护盾</span></button><button id="magnifierTool" type="button" title="自动点亮一条线索">🔍<b id="magnifierCount">1</b><span>放大镜</span></button><button id="hornTool" type="button" title="治理站加倍奖励">📣<b id="hornCount">0</b><span>小喇叭</span></button></div></section>
-        <button class="restart" id="restartButton" type="button">重新开始这一站</button>
+      <aside class="control-panel">
+        <section class="turn-card" id="turnCard">
+          <div class="turn-person">
+            <div class="avatar-ring"><img id="turnAvatar" src="assets/characters/mascot-red.png" alt="当前玩家" /></div>
+            <div><small>当前行动</small><strong id="turnName">等待开局</strong><span id="turnMeta">请先设置本局玩家</span></div>
+          </div>
+          <div class="safety-meter"><div><span>安全值</span><b id="turnSafety">—</b></div><div class="meter"><i id="safetyBar"></i></div></div>
+          <div class="resource-row">
+            <span id="rescueStatus">☎ 96110 × 1</span><span id="clueStatus">◆ 调查线索 × 0</span><span id="stampStatus">章 多方核验 × 0</span>
+          </div>
+        </section>
+
+        <section class="dice-console">
+          <p id="turnPrompt">开局后点击双骰开始行动</p>
+          <div class="dice-pair" aria-label="双骰结果"><div class="die" id="dieOne"><span>⚀</span></div><div class="die" id="dieTwo"><span>⚀</span></div></div>
+          <button class="primary-action" id="rollButton" type="button" disabled><span>掷双骰</span><small>ROLL</small></button>
+          <div class="detention-actions" id="detentionActions" hidden>
+            <button id="waitButton" type="button">等待一回合</button><button id="useRescueButton" type="button">使用 96110 卡</button>
+          </div>
+        </section>
+
+        <section class="players-section">
+          <div class="section-title"><b>同行调查队</b><span id="timerLabel">不限时</span></div>
+          <div class="players-list" id="playersList"></div>
+        </section>
+
+        <section class="casebook">
+          <div class="section-title"><b>本局反诈调查簿</b><span id="caseCount">0 / 8</span></div>
+          <div class="case-progress"><i id="caseProgress"></i></div>
+          <p id="caseHint">识破不同类型的骗局，完善调查簿。</p>
+        </section>
+
+        <section class="action-log">
+          <div class="section-title"><b>行动记录</b><button id="soundButton" type="button">音效：开</button></div>
+          <ol id="actionLog"><li>等待调查队集结……</li></ol>
+        </section>
       </aside>
     </section>
-
-    <section class="sticker-section"><div><p class="eyebrow">我的贴纸册</p><h2>每次勇敢判断，都值得一枚贴纸</h2></div><div class="stickers" id="stickers"></div></section>
   </main>
 
-  <div class="modal-backdrop" id="modalBackdrop" hidden><section class="modal" role="dialog" aria-modal="true"><button class="close" id="closeModal" type="button">×</button><p class="modal-tag" id="modalTag">线索挑战</p><h2 id="modalTitle"></h2><div class="dialogue" id="dialogue"></div><div class="clue-box" id="clueBox"></div><div class="answers" id="answers"></div><div id="resultBox"></div><button class="continue" id="continueButton" type="button">继续冒险</button></section></div>
-  <div class="toast" id="toast"></div>
+  <footer><p>寻乌法治科普实践 · 反诈不是背口号，而是在每一次选择前停一停、查一查、问一问。</p></footer>
+
+  <div class="overlay" id="setupOverlay">
+    <section class="setup-dialog" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+      <p class="kicker">组建寻乌反诈调查队</p><h2 id="setupTitle">开始一场新的平安闯关</h2>
+      <p class="dialog-lead">选择 2–4 位玩家和对局模式。每位玩家从 100 安全值、1 张 96110 求助卡开始。</p>
+      <div class="setup-block">
+        <div class="setup-label"><b>参赛角色</b><span>至少选择 2 位</span></div>
+        <div class="character-options" id="characterOptions"></div>
+      </div>
+      <div class="mode-options" id="modeOptions">
+        <button class="selected" data-mode="standard" type="button"><b>标准淘汰模式</b><span>安全值归零退出，最后留在场上的玩家获胜</span></button>
+        <button data-mode="timed" type="button"><b>28 分钟活动模式</b><span>时间到即结算，安全值最高者获胜</span></button>
+      </div>
+      <button class="start-button" id="startButton" type="button">调查队出发</button>
+    </section>
+  </div>
+
+  <div class="overlay" id="modalOverlay" hidden>
+    <section class="story-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalClose" type="button" aria-label="关闭">×</button>
+      <div class="modal-heading"><span id="modalIcon">?</span><div><small id="modalType">情景抉择</small><h2 id="modalTitle">事件标题</h2></div></div>
+      <p class="modal-location" id="modalLocation"></p><div class="story-copy" id="storyCopy"></div>
+      <div class="choice-list" id="choiceList"></div><div class="feedback" id="feedback" hidden></div>
+      <button class="continue-button" id="continueButton" type="button" hidden>继续行动</button>
+    </section>
+  </div>
+
+  <div class="rules-drawer" id="rulesDrawer" aria-hidden="true">
+    <button class="drawer-close" id="drawerClose" type="button">×</button>
+    <p class="kicker">快速规则</p><h2>先调查，再行动</h2>
+    <div class="rule-grid">
+      <article><b>01 · 掷双骰前进</b><p>点数相同可再掷一次；连续三次对子直接进入“陷入骗局滞留区”。</p></article>
+      <article><b>02 · 四类棋格</b><p>蓝色安全实践、红色诈骗陷阱、黄色情景抉择、橙色事件抽取。</p></article>
+      <article><b>03 · 96110 求助卡</b><p>每人仅一张，可在 ≥20 的扣分生效前抵消全部损失，也可立即解除滞留。</p></article>
+      <article><b>04 · 多方核验</b><p>安全选择会积累调查线索；每 3 条自动形成一枚核验章，并获得安全值奖励。</p></article>
+      <article><b>05 · 经过起点</b><p>每次经过或落到马蹄岗复盘站，获得 10 点安全值；直接传送滞留区不计。</p></article>
+      <article><b>06 · 胜负</b><p>标准模式坚持到最后；活动模式 28 分钟后按安全值排名，可并列获胜。</p></article>
+    </div>
+    <p class="rule-note">普通移动落在第 21 格只是“路过参观”，不会自动滞留。安全值代表风险抵御能力，不是金钱。</p>
+  </div>
+  <div class="drawer-mask" id="drawerMask" hidden></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="app.js"></script>
-  <script>afterMove=function(){save();render();endTurn()};[1,6,11,16,22].forEach(index=>cells[index][3]='quiz');buildBoard();render();</script>
 </body>
 </html>
