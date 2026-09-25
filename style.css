@@ -14,10 +14,8 @@
   --muted: #657584;
   --line: rgba(16, 42, 67, .13);
   --shadow: 0 20px 55px rgba(32, 35, 32, .14);
-  --camera-tilt: 48deg;
-  --camera-spin: -2deg;
-  --camera-counter-tilt: -48deg;
-  --camera-counter-spin: 2deg;
+  --camera-tilt: 34deg;
+  --camera-counter-tilt: -34deg;
 }
 
 * { box-sizing: border-box; }
@@ -95,7 +93,7 @@ main { width: min(1500px, 100%); margin: auto; padding: 0 clamp(12px, 3.2vw, 48p
 .status-dot { grid-row: 1 / 3; width: 10px; height: 10px; border-radius: 50%; background: #62a36a; box-shadow: 0 0 0 5px rgba(98,163,106,.13); }
 .camera-controls { display: flex; gap: 5px; }
 .camera-controls button { width: 33px; height: 29px; border: 1px solid var(--line); border-radius: 8px; color: var(--navy); background: #fff; cursor: pointer; font-weight: 900; }
-.scene { position: relative; min-height: 690px; display: grid; place-items: center; perspective: 1500px; perspective-origin: 50% 38%; overflow: hidden; border-radius: 16px; background: radial-gradient(ellipse at 50% 62%, rgba(68,67,50,.25), transparent 45%), linear-gradient(155deg, #e5d7bb, #f7efdf 47%, #d8ccb5); }
+.scene { position: relative; min-height: 690px; display: grid; place-items: center; perspective: 2200px; perspective-origin: 50% 46%; overflow: hidden; border-radius: 16px; background: radial-gradient(ellipse at 50% 62%, rgba(68,67,50,.25), transparent 45%), linear-gradient(155deg, #e5d7bb, #f7efdf 47%, #d8ccb5); }
 .scene::before { content: ""; position: absolute; inset: 0; opacity: .25; background-image: linear-gradient(rgba(105,73,42,.15) 1px, transparent 1px), linear-gradient(90deg, rgba(105,73,42,.15) 1px, transparent 1px); background-size: 36px 36px; transform: perspective(500px) rotateX(63deg) scale(1.7); }
 .board-3d {
   position: relative;
@@ -110,7 +108,7 @@ main { width: min(1500px, 100%); margin: auto; padding: 0 clamp(12px, 3.2vw, 48p
   background: #dcc9a5;
   box-shadow: 0 8px 0 #0a1b29, 0 18px 0 #ae9372, 0 42px 48px rgba(28,24,18,.33);
   transform-style: preserve-3d;
-  transform: rotateX(var(--camera-tilt)) rotateZ(var(--camera-spin)) translateZ(0);
+  transform: rotateX(var(--camera-tilt)) translateY(-1%) translateZ(0);
   transition: transform .65s cubic-bezier(.2,.8,.2,1);
 }
 .board-3d::before { content: ""; position: absolute; inset: 7.4%; border: 1px solid rgba(255,255,255,.45); pointer-events: none; }
@@ -187,7 +185,7 @@ main { width: min(1500px, 100%); margin: auto; padding: 0 clamp(12px, 3.2vw, 48p
   height: 62px;
   pointer-events: none;
   transform-style: preserve-3d;
-  transform: translate(calc(-50% + var(--pawn-offset-x)), calc(-92% + var(--pawn-offset-y))) rotateX(var(--camera-counter-tilt)) rotateZ(var(--camera-counter-spin)) translateZ(55px);
+  transform: translate(calc(-50% + var(--pawn-offset-x)), calc(-92% + var(--pawn-offset-y))) rotateX(var(--camera-counter-tilt)) translateZ(55px);
   transition: left .18s linear, top .18s linear, transform .65s;
 }
 .pawn img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 6px 4px rgba(0,0,0,.38)); }
@@ -319,9 +317,9 @@ footer { padding: 25px 20px 40px; text-align: center; color: var(--muted); font-
 .toast { position: fixed; z-index: 110; left: 50%; bottom: 24px; max-width: min(90vw,520px); padding: 10px 15px; opacity: 0; transform: translate(-50%,15px); color: #fff; background: var(--navy); border: 1px solid #e7c363; border-radius: 9px; box-shadow: 0 12px 30px rgba(0,0,0,.25); pointer-events: none; transition: .25s; font-size: 10px; }
 .toast.show { opacity: 1; transform: translate(-50%,0); }
 
-body.top-view { --camera-tilt: 5deg; --camera-counter-tilt: -5deg; }
+body.top-view { --camera-tilt: 3deg; --camera-counter-tilt: -3deg; }
 body.top-view .scene { perspective-origin: 50% 50%; }
-body.top-view .pawn { transform: translate(calc(-50% + var(--pawn-offset-x)), calc(-92% + var(--pawn-offset-y))) rotateX(var(--camera-counter-tilt)) rotateZ(var(--camera-counter-spin)) translateZ(55px); }
+body.top-view .pawn { transform: translate(calc(-50% + var(--pawn-offset-x)), calc(-92% + var(--pawn-offset-y))) rotateX(var(--camera-counter-tilt)) translateZ(55px); }
 
 @media (max-width: 1180px) {
   .game-grid { grid-template-columns: 1fr; }
@@ -341,6 +339,7 @@ body.top-view .pawn { transform: translate(calc(-50% + var(--pawn-offset-x)), ca
   .pawn { width: 37px; height: 52px; }
 }
 @media (max-width: 650px) {
+  body:not(.top-view) { --camera-tilt: 27deg; --camera-counter-tilt: -27deg; }
   .topbar { min-height: 61px; padding: 8px 12px; }
   .brand { font-size: 13px; }.brand-mark { width: 35px; height: 35px; }.brand small { display: none; }
   .topbar nav .nav-button:first-child { display: none; }

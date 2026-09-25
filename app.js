@@ -93,7 +93,7 @@ const perimeter = (() => {
 const state = {
   started: false, finished: false, mode: "standard", players: [], current: 0, round: 1,
   phase: "setup", doublesStreak: 0, extraRoll: false, selectedHeroes: new Set(["red", "blue"]),
-  cases: new Set(), logs: [], secondsLeft: 28 * 60, timer: null, spin: -2, topView: false,
+  cases: new Set(), logs: [], secondsLeft: 28 * 60, timer: null, tilt: 34, topView: false,
   sound: true, modalLocked: false, modalContinue: null, eventIndex: 0
 };
 
@@ -680,9 +680,9 @@ function openSetup() {
 }
 
 function updateCamera(delta = 0) {
-  state.spin += delta;
-  document.documentElement.style.setProperty("--camera-spin", `${state.spin}deg`);
-  document.documentElement.style.setProperty("--camera-counter-spin", `${-state.spin}deg`);
+  state.tilt = Math.max(18, Math.min(44, state.tilt + delta));
+  document.documentElement.style.setProperty("--camera-tilt", `${state.tilt}deg`);
+  document.documentElement.style.setProperty("--camera-counter-tilt", `${-state.tilt}deg`);
 }
 
 $("#rollButton").addEventListener("click", rollDice);
@@ -715,9 +715,9 @@ $("#viewButton").addEventListener("click", () => {
   document.body.classList.toggle("top-view", state.topView);
   $("#viewButton").textContent = state.topView ? "立体棋盘" : "俯视棋盘";
 });
-$("#rotateLeft").addEventListener("click", () => updateCamera(-8));
-$("#rotateRight").addEventListener("click", () => updateCamera(8));
-$("#resetCamera").addEventListener("click", () => { state.spin = -2; updateCamera(0); });
+$("#rotateLeft").addEventListener("click", () => updateCamera(-4));
+$("#rotateRight").addEventListener("click", () => updateCamera(4));
+$("#resetCamera").addEventListener("click", () => { state.tilt = 34; updateCamera(0); });
 document.addEventListener("keydown", event => {
   if (event.key === "Escape") {
     if ($("#rulesDrawer").classList.contains("open")) closeRules();
