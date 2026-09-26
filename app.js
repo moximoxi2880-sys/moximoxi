@@ -18,7 +18,11 @@ const choice = (name, icon, scene, safeText, riskText, caseId, clue, safeFirst =
   summary: "在贴近乡村生活的情景中作出选择，安全方案奖励 8 点，冒险方案扣除 15 点。"
 });
 const safe = (name, icon, reward, lesson) => ({ name, icon, type: "safe", reward, lesson, summary: `完成安全实践，增加 ${reward} 点安全值。` });
-const eventTile = (name, icon, lesson = "抽取一张反诈事件卡，并立即执行卡牌效果。") => ({ name, icon, type: "event", lesson, summary: lesson });
+const eventTile = (name, icon, deck = "reward") => ({
+  name, icon, deck, type: "event",
+  lesson: deck === "reward" ? "抽取一张平安奖励卡，获得调查助力。" : "抽取一张风险惩戒卡，应对突发骗局。",
+  summary: deck === "reward" ? "抽取绿色平安奖励卡，并立即执行卡牌效果。" : "抽取红色风险惩戒卡，并立即执行卡牌效果。"
+});
 const special = (name, icon, kind, lesson, reward = 0) => ({ name, icon, type: "special", kind, lesson, reward, summary: lesson });
 
 const tiles = [
@@ -26,60 +30,73 @@ const tiles = [
   trap("百香果果园陷阱", "🥭", "陌生采购商声称高价包销百香果，但要求先付“渠道保证金”。", 24, "预付保证金", "先付款、后签约"),
   choice("蜜桔电商抉择", "🍊", "平台外“运营老师”称交保证金就能把蜜桔店铺推上首页。", "暂停付款，通过平台官方客服核验活动", "担心错过流量，立刻私下转保证金", "电商引流", "平台外收款"),
   safe("三二五红色安全驿站", "⭐", 12, "与同伴复盘：凡是催促转账的消息，都要换一个渠道核实身份。"),
-  eventTile("大田油茶基地事件", "🌿"),
+  eventTile("大田油茶基地·平安卡", "🌿", "reward"),
   trap("农资化肥骗局", "🌾", "低价化肥广告承诺“内部渠道、货到丰收”，却要求向私人账户全款转账。", 28, "农资采购", "私人账户收款"),
   choice("客家乡村养老抉择", "🏠", "“养老服务专员”上门推销高息养老项目，催老人当天签约。", "联系家人并查询民政、市场监管等官方信息", "相信熟人介绍，当场签约付款", "养老投资", "高息养老项目"),
   safe("东江源便民服务点", "☎", 10, "通过官方窗口查询政策，不把验证码、银行卡密码告诉任何人。"),
-  eventTile("古柏故里事件", "🌳"),
+  eventTile("古柏故里·风险卡", "🌳", "risk"),
   trap("短视频刷单陷阱", "📱", "短视频群里先返小额佣金，再诱导做大额“联单任务”。", 30, "刷单返利", "小利诱导大额投入"),
   special("三二五红色安全驿站", "★", "station", "重温调查方法：看来源、查身份、核账户、问家人。增加 15 点安全值。", 15),
   choice("农产品直播抉择", "🎥", "直播代运营公司保证“七天爆单”，要求绕开合同先交服务费。", "查验公司资质、合同与真实案例后再决定", "只看成交截图，马上转服务费", "直播代运营", "保证爆单"),
-  eventTile("寻乌蜜桔产业园事件", "🍊"),
+  eventTile("寻乌蜜桔产业园·平安卡", "🍊", "reward"),
   trap("冒充乡镇干部诈骗", "📄", "对方用干部头像发来“补贴申报表”，要求提供验证码并转认证费。", 35, "冒充公职人员", "索要验证码"),
   safe("乡村警务宣传栏", "🛡", 8, "记住：接到 96110 预警电话要及时接听，并按民警提示止付核验。"),
   choice("返乡青年网贷抉择", "💳", "贷款客服称银行卡号填错，需交“解冻金”才能放款。", "停止操作，通过持牌机构官方渠道查询", "继续借款交解冻金，想着到账后再还", "虚假网贷", "放款前收费"),
-  eventTile("菖蒲会见旧址事件", "🏛"),
+  eventTile("菖蒲会见旧址·风险卡", "🏛", "risk"),
   trap("冒充亲友 AI 换脸", "🎭", "视频中的“亲友”神情自然，却催你马上代转一笔急用款。", 32, "AI 换脸", "视频也要二次核验"),
   safe("百果满园合作社", "🤝", 11, "合作社建立双人复核：大额付款必须核合同、核账户、核收款人。"),
   choice("研学旅游项目抉择", "🚌", "陌生机构发来低价研学团链接，要求脱离平台缴纳定金。", "通过学校或文旅部门核验资质与合同", "被限时名额催促，点击链接直接付款", "虚假旅游", "脱离平台付款"),
   special("陷入骗局滞留区", "⏸", "detention", "正常移动落到这里仅为“路过参观”；只有连续三次对子或事件传送才会滞留。"),
-  eventTile("圳下战斗旧址事件", "📯"),
+  eventTile("圳下战斗旧址·平安卡", "📯", "reward"),
   safe("村新时代文明实践站", "📣", 13, "把典型骗局讲给邻里听，帮助身边人建立“先核验、后行动”的习惯。"),
   trap("虚假保险骗局", "☂", "“理赔专员”准确说出订单信息，要求共享屏幕办理快速赔付。", 26, "虚假理赔", "共享屏幕"),
   choice("果园投资抉择", "🌱", "项目方承诺“云认养果树、每月固定分红”，只展示精美宣传片。", "实地调查经营主体、收益来源和合同风险", "相信保本高收益，立即认购多棵果树", "虚假投资", "保本高收益"),
-  eventTile("罗福嶂会议旧址事件", "⛰"),
+  eventTile("罗福嶂会议旧址·风险卡", "⛰", "risk"),
   safe("客家围屋议事点", "🏘", 9, "遇到拿不准的转账，先在家人、村干部或民警间进行多方核验。"),
   trap("快递理赔诈骗", "📦", "“快递客服”称包裹丢失，发来网页要求填写银行卡和短信验证码。", 25, "快递理赔", "陌生理赔链接"),
   choice("村集体分红抉择", "🧾", "群里通知“村集体分红升级”，扫码登记银行卡即可领钱。", "向村委会公开电话核实，不扫陌生二维码", "群里很多人说已领取，马上扫码登记", "冒充补贴", "群聊从众"),
-  eventTile("澄江战斗旧址事件", "🚩"),
-  special("罗塘谈判事件抽取站", "🃏", "event", "谈判前先调查。立即抽取并执行一张反诈事件卡。"),
+  eventTile("澄江战斗旧址·平安卡", "🚩", "reward"),
+  special("罗塘谈判·双面卡站", "🃏", "event", "谈判前先调查：随机抽取一张平安奖励卡或风险惩戒卡。"),
   safe("三二五红色安全驿站", "★", 14, "把“停止转账、保存证据、拨打官方电话”作为被骗后的止损三步。"),
   trap("冒充网络导师理财骗局", "📈", "群内“导师”晒出盈利截图，要求下载指定软件跟投数字资产。", 33, "虚假理财", "指定软件跟投"),
   choice("电商店铺抉择", "🛒", "客服称店铺违规，必须在十分钟内点击私聊链接缴纳解封费。", "从卖家后台进入官方申诉通道核验", "害怕封店，按私聊链接立即缴费", "冒充平台客服", "制造紧迫感"),
-  eventTile("阳天茗茶茶园事件", "🍵"),
+  eventTile("阳天茗茶茶园·风险卡", "🍵", "risk"),
   safe("乡镇便民服务中心", "🏢", 10, "补贴和政务事项只认官方渠道，不通过陌生链接提交账户信息。"),
   trap("“帮扶老区”慈善诈骗", "❤️", "自称公益组织人员募集“老区帮扶款”，收款码却是个人账户。", 27, "虚假慈善", "个人收款码"),
   choice("乡村交友杀猪盘抉择", "💬", "网恋对象每天嘘寒问暖，随后推荐“内部投资平台”共同赚钱。", "拒绝投资并向亲友、警方核验对方身份", "为了共同未来，跟随对方充值试试", "交友投资", "感情铺垫投资"),
-  eventTile("百香果果社事件", "🥭"),
+  eventTile("百香果果社·平安卡", "🥭", "reward"),
   safe("果农夜校学习点", "📚", 12, "学习最新诈骗话术，把经验带回家庭和合作社。下一步将回到起点复盘。")
 ];
 
-const eventCards = [
-  { title: "参加反诈宣讲", text: "你在村民会上讲解真实骗局，帮助农户守住钱袋子。", delta: 15, icon: "📣", positive: true },
-  { title: "合作社防骗培训", text: "合作社组织果农学习账户核验和合同审查。", delta: 12, icon: "🤝", positive: true },
-  { title: "邻居及时提醒", text: "邻居识破低价农资骗局，提醒你先查商家资质。", delta: 10, icon: "🌾", positive: true },
-  { title: "纪念馆研学复盘", text: "在寻乌调查纪念馆研学后，你养成多方核实的习惯。", delta: 14, icon: "🔎", positive: true, clue: true },
-  { title: "接听 96110 预警", text: "你及时接听预警电话并停止转账。", delta: 8, icon: "☎", positive: true },
-  { title: "入户反诈宣传", text: "乡镇干部入户宣传，讲清高发骗局的红旗信号。", delta: 11, icon: "🏠", positive: true },
-  { title: "蜜桔代加工高回报", text: "广告承诺代加工稳赚不赔，你没有核验便支付费用。", delta: -18, icon: "🍊", positive: false, caseId: "加工投资" },
-  { title: "虚假专项补贴链接", text: "所谓“老区农户专项补贴”页面套取了你的账户信息。", delta: -20, icon: "🔗", positive: false, caseId: "冒充补贴" },
-  { title: "群转果农致富项目", text: "群友热推的项目没有真实经营支撑。", delta: -16, icon: "💬", positive: false, caseId: "群聊投资" },
-  { title: "果园补贴索卡号", text: "对方以发放百香果果园补贴为由索要银行卡和验证码。", delta: -22, icon: "💳", positive: false, caseId: "冒充补贴" },
-  { title: "亲友转来刷单链接", text: "熟人账号也可能被盗，你因未二次核验而进入刷单任务。", delta: -19, icon: "📱", positive: false, caseId: "刷单返利" },
-  { title: "虚假特产微商加盟", text: "“寻乌特产全国总代”收取加盟费后失联。", delta: -17, icon: "🛍", positive: false, caseId: "微商加盟" }
+const rewardCards = [
+  { title: "平安宣讲之星", text: "你在圩日集市讲清养老骗局，老人们记住了“不轻信、不转账”。", icon: "📣", effect: "safety", amount: 15, label: "安全值 +15" },
+  { title: "96110 及时止付", text: "你接听预警电话并配合核验，守住了准备转出的资金。", icon: "☎", effect: "shield", amount: 1, label: "获得 1 枚守护盾" },
+  { title: "寻乌调查研学", text: "你用实事求是的方法核对来源、身份和账户，找到关键破绽。", icon: "🔎", effect: "clue", amount: 1, label: "调查线索 +1" },
+  { title: "蜜桔合作社联防", text: "合作社建立大额付款双人复核，大家互相提醒。", icon: "🍊", effect: "safety", amount: 12, label: "安全值 +12" },
+  { title: "校园反诈小课堂", text: "你识破游戏充值低价代充骗局，并把案例讲给同学。", icon: "🎮", effect: "extra", label: "获得 1 次额外行动" },
+  { title: "邻里守望", text: "你帮助独居老人核验陌生来电，获得一枚多方核验章。", icon: "🏠", effect: "stamp", amount: 1, label: "核验章 +1，安全值 +5" },
+  { title: "官方平台核验", text: "你从官方入口核对助农补贴，没有点击群里的陌生链接。", icon: "🛡", effect: "safety", amount: 10, label: "安全值 +10" },
+  { title: "保留完整证据", text: "你及时保存聊天与转账信息，为止付追查赢得时间。", icon: "🧾", effect: "shield", amount: 1, label: "获得 1 枚守护盾" },
+  { title: "家人视频暗号", text: "全家约定转账前核对暗号，AI 换脸也骗不过你。", icon: "🎭", effect: "clue", amount: 1, label: "调查线索 +1" },
+  { title: "警民反诈服务站", text: "你完成风险复盘，若求助卡已经使用，可重新领取一张。", icon: "👮", effect: "rescue", label: "补充 96110 求助卡" },
+  { title: "果园实地核查", text: "你没有相信“云认养”宣传片，而是实地查看经营主体。", icon: "🌱", effect: "move", amount: 2, label: "沿路线前进 2 格" },
+  { title: "法治赶集日", text: "反诈摊位人气满满，你答对三道风险辨识题。", icon: "⚖", effect: "safety", amount: 18, label: "安全值 +18" }
 ];
-// 规则手册要求 36 张事件卡；以设计文档给出的 12 个主题各配置 3 张，形成完整虚拟牌堆。
-const eventDeck = Array.from({ length: 36 }, (_, index) => ({ ...eventCards[index % eventCards.length] }));
+
+const riskCards = [
+  { title: "养老项目限时返利", text: "所谓养老服务专员用高息和赠品催促老人当天付款。", icon: "🧓", effect: "safety", amount: -18, caseId: "养老投资", label: "安全值 -18" },
+  { title: "AI 亲友紧急借款", text: "视频里的人像亲友，却拒绝回答你们约定的核验问题。", icon: "🎭", effect: "safety", amount: -20, caseId: "AI 换脸", label: "安全值 -20" },
+  { title: "游戏装备低价代充", text: "陌生卖家让你脱离平台扫码充值，付款后立即失联。", icon: "🎮", effect: "safety", amount: -16, caseId: "游戏充值", label: "安全值 -16" },
+  { title: "刷单连环任务", text: "小额返利后出现必须连续完成的大额任务，你被拖住了。", icon: "📱", effect: "skip", amount: 1, caseId: "刷单返利", label: "暂停行动 1 回合" },
+  { title: "虚假蜜桔采购单", text: "高价采购商索要渠道保证金，你需要退回核验来源。", icon: "🍊", effect: "move", amount: -3, caseId: "预付保证金", label: "沿路线后退 3 格" },
+  { title: "冒充干部发补贴", text: "对方索取银行卡验证码，造成信息风险。", icon: "📄", effect: "clue", amount: -1, caseId: "冒充补贴", label: "调查线索 -1" },
+  { title: "共享屏幕理赔", text: "假客服诱导共享屏幕，你的验证码暴露。", icon: "📦", effect: "safety", amount: -22, caseId: "虚假理赔", label: "安全值 -22" },
+  { title: "理财导师拉群", text: "群里的盈利截图全是布置好的，你被带离正规渠道。", icon: "📈", effect: "safety", amount: -20, caseId: "虚假理财", label: "安全值 -20" },
+  { title: "陌生链接木马", text: "你点开所谓助农文件，设备需要停下来进行安全检查。", icon: "🔗", effect: "skip", amount: 1, caseId: "钓鱼链接", label: "暂停行动 1 回合" },
+  { title: "网贷解冻金", text: "放款前收费是典型红旗信号，你的调查进度受到干扰。", icon: "💳", effect: "clue", amount: -1, caseId: "虚假网贷", label: "调查线索 -1" },
+  { title: "感情投资局", text: "网恋对象推荐内部平台，你偏离调查路线。", icon: "💬", effect: "move", amount: -2, caseId: "交友投资", label: "沿路线后退 2 格" },
+  { title: "特产加盟骗局", text: "“全国总代”收完加盟费失联，风险值骤升。", icon: "🛍", effect: "safety", amount: -17, caseId: "微商加盟", label: "安全值 -17" }
+];
 
 const perimeter = (() => {
   const result = [[11, 1]];
@@ -94,20 +111,20 @@ const state = {
   started: false, finished: false, mode: "standard", players: [], current: 0, round: 1,
   phase: "setup", doublesStreak: 0, extraRoll: false, selectedHeroes: new Set(["red", "blue"]),
   cases: new Set(), logs: [], secondsLeft: 28 * 60, timer: null, tilt: 34, topView: false,
-  sound: true, modalLocked: false, modalContinue: null, eventIndex: 0
+  sound: true, modalLocked: false, modalContinue: null, rewardIndex: 0, riskIndex: 0, mixedDeck: "reward"
 };
 
 function buildBoard() {
   tiles.forEach((tile, index) => {
     const [row, column] = perimeter[index];
     const cell = document.createElement("button");
-    const specialClass = index === 0 ? "start" : tile.type;
+    const specialClass = index === 0 ? "start" : `${tile.type}${tile.type === "event" ? ` card-${tile.deck}` : ""}`;
     cell.type = "button";
     cell.className = `cell ${specialClass}`;
     cell.dataset.index = index;
     cell.style.gridArea = `${row} / ${column}`;
     cell.setAttribute("aria-label", `第 ${index + 1} 格，${tile.name}`);
-    cell.innerHTML = `<span class="cell-num">${String(index + 1).padStart(2, "0")}</span><span class="cell-icon">${tile.icon}</span><span class="cell-name">${tile.name}</span><span class="cell-badge">${tile.type === "trap" ? "诈" : tile.type === "choice" ? "择" : tile.type === "event" ? "事" : ""}</span>`;
+    cell.innerHTML = `<span class="cell-num">${String(index + 1).padStart(2, "0")}</span><span class="cell-icon">${tile.icon}</span><span class="cell-name">${tile.name}</span><span class="cell-badge">${tile.type === "trap" ? "诈" : tile.type === "choice" ? "择" : tile.type === "event" ? tile.deck === "reward" ? "奖" : "惩" : ""}</span>`;
     cell.addEventListener("click", () => previewTile(index));
     $("#board").append(cell);
   });
@@ -155,7 +172,8 @@ function buildSetupSelection() {
 
 function tileCategory(tile, index) {
   if ([0, 10, 20, 30].includes(index)) return "四角地标";
-  return { safe: "安全实践格", trap: "诈骗陷阱格", choice: "情景抉择格", event: "事件抽取格", special: "特殊格" }[tile.type];
+  if (tile.type === "event") return tile.deck === "reward" ? "平安奖励卡格" : "风险惩戒卡格";
+  return { safe: "安全实践格", trap: "诈骗陷阱格", choice: "情景抉择格", special: "特殊格" }[tile.type];
 }
 
 function previewTile(index) {
@@ -171,7 +189,7 @@ function previewTile(index) {
 
 function startGame() {
   state.players = heroes.filter(hero => state.selectedHeroes.has(hero.id)).map(hero => ({
-    hero, safety: 100, position: 0, rescue: true, clues: 0, stamps: 0, detained: false, eliminated: false
+    hero, safety: 100, position: 0, rescue: true, clues: 0, stamps: 0, shields: 0, skipTurns: 0, detained: false, eliminated: false
   }));
   state.started = true;
   state.finished = false;
@@ -183,7 +201,9 @@ function startGame() {
   state.cases = new Set();
   state.logs = [];
   state.secondsLeft = 28 * 60;
-  state.eventIndex = Math.floor(Math.random() * eventDeck.length);
+  state.rewardIndex = Math.floor(Math.random() * rewardCards.length);
+  state.riskIndex = Math.floor(Math.random() * riskCards.length);
+  state.mixedDeck = Math.random() > .5 ? "reward" : "risk";
   $("#setupOverlay").hidden = true;
   addLog(`抽签结果：${currentPlayer().hero.name}先行`);
   addLog(`调查队已集结，共 ${state.players.length} 人`);
@@ -259,6 +279,7 @@ function renderCurrent() {
   $("#rescueStatus").textContent = `☎ 96110 × ${player.rescue ? 1 : 0}`;
   $("#clueStatus").textContent = `◆ 调查线索 × ${player.clues}`;
   $("#stampStatus").textContent = `章 多方核验 × ${player.stamps}`;
+  $("#shieldStatus").textContent = `盾 守护盾 × ${player.shields}`;
   $("#turnCard").style.background = `linear-gradient(140deg, ${player.hero.color}, #102a43)`;
 }
 
@@ -280,6 +301,21 @@ function updateTimer() {
 function beginTurn() {
   if (state.finished) return;
   const player = currentPlayer();
+  if (player.skipTurns > 0) {
+    player.skipTurns--;
+    state.phase = "skipped";
+    $("#detentionActions").hidden = true;
+    $("#rollButton").hidden = false;
+    addLog(`${player.hero.name}执行风险惩戒，暂停行动 1 回合`);
+    render();
+    showModal({
+      icon: "⏳", type: "风险惩戒生效", title: "冷静核验，暂停行动",
+      location: `${player.hero.name} · 本回合不能掷骰`,
+      body: "<div class='fortune-card risk-card'><span>风险惩戒卡</span><strong>暂停一回合</strong><p>利用这一回合检查设备、保存证据并通过官方渠道核验。</p><em>沉着不是耽误，而是止损。</em></div>",
+      choices: [], locked: true, cardType: "risk", continueText: "完成核验，交给下一位", onContinue: () => { closeModal(); nextTurn(); }
+    });
+    return;
+  }
   state.phase = player.detained ? "detained" : "roll";
   state.extraRoll = false;
   state.doublesStreak = 0;
@@ -367,7 +403,7 @@ function resolveTile(index) {
   }
   if (tile.type === "trap") return openTrap(tile, location);
   if (tile.type === "choice") return openChoice(tile, location);
-  if (tile.type === "event" || (tile.type === "special" && tile.kind === "event")) return drawEvent(location);
+  if (tile.type === "event" || (tile.type === "special" && tile.kind === "event")) return drawEvent(location, tile.deck || "mixed");
   if (tile.kind === "detention") {
     addLog(`${player.hero.name}路过滞留区，不受处罚`);
     showModal({
@@ -419,26 +455,74 @@ function resolveDecision(good, delta, tile) {
   render();
 }
 
-function drawEvent(location) {
-  const card = eventDeck[state.eventIndex % eventDeck.length];
-  state.eventIndex = (state.eventIndex + 5) % eventDeck.length;
+function drawEvent(location, requestedDeck = "mixed") {
+  const deckType = requestedDeck === "mixed" ? state.mixedDeck : requestedDeck;
+  if (requestedDeck === "mixed") state.mixedDeck = deckType === "reward" ? "risk" : "reward";
+  const deck = deckType === "reward" ? rewardCards : riskCards;
+  const indexKey = deckType === "reward" ? "rewardIndex" : "riskIndex";
+  const card = deck[state[indexKey] % deck.length];
+  state[indexKey] = (state[indexKey] + 5) % deck.length;
+  const cardName = deckType === "reward" ? "平安奖励卡" : "风险惩戒卡";
   showModal({
-    icon: card.icon, type: card.positive ? "正向反诈事件卡" : "负向扰动事件卡", title: card.title, location,
-    body: `<p>${card.text}</p><div class="quote">${card.delta > 0 ? "+" : ""}${card.delta} 安全值</div>`,
-    choices: [], locked: true
+    icon: card.icon, type: cardName, title: card.title, location,
+    body: `<div class="fortune-card ${deckType}-card"><span>${cardName}</span><strong>${card.title}</strong><p>${card.text}</p><em>${card.label}</em></div>`,
+    choices: [], locked: true, cardType: deckType
   });
-  const player = currentPlayer();
-  if (card.delta > 0) {
-    player.safety += card.delta;
-    if (card.clue) addClue(player);
-    addLog(`${player.hero.name}抽到“${card.title}”，安全值 +${card.delta}`);
-    tone(590, .12);
-    prepareContinue();
-  } else {
-    addLog(`${player.hero.name}抽到“${card.title}”`);
-    applyImpact(card.delta, card.caseId, prepareContinue);
-  }
+  applyCardEffect(card, deckType);
   render();
+}
+
+function applyCardEffect(card, deckType) {
+  const player = currentPlayer();
+  addLog(`${player.hero.name}抽到${deckType === "reward" ? "平安奖励卡" : "风险惩戒卡"}“${card.title}”`);
+  if (deckType === "risk" && player.shields > 0) {
+    player.shields--;
+    addLog(`${player.hero.name}使用守护盾，抵消“${card.title}”`);
+    showFeedback(true, "守护盾生效", "此前积累的防骗准备抵消了本次风险惩戒，卡牌效果不再执行。");
+    tone(720, .15);
+    prepareContinue();
+    return;
+  }
+  if (card.effect === "safety") {
+    if (card.amount > 0) {
+      player.safety += card.amount;
+      addLog(`${player.hero.name}安全值 +${card.amount}`);
+      tone(590, .12);
+      prepareContinue();
+    } else {
+      applyImpact(card.amount, card.caseId, prepareContinue);
+    }
+    return;
+  }
+  if (card.effect === "clue") {
+    if (card.amount > 0) addClue(player);
+    else player.clues = Math.max(0, player.clues + card.amount);
+  }
+  if (card.effect === "stamp") {
+    player.stamps += card.amount;
+    player.safety += 5;
+  }
+  if (card.effect === "shield") player.shields += card.amount;
+  if (card.effect === "rescue") {
+    if (player.rescue) {
+      player.safety += 8;
+      card = { ...card, label: "求助卡已持有，改为安全值 +8" };
+      showFeedback(true, "奖励自动兑换", "你已经持有 96110 求助卡，本次奖励自动兑换为 8 点安全值。");
+    } else player.rescue = true;
+  }
+  if (card.effect === "extra") state.extraRoll = true;
+  if (card.effect === "skip") player.skipTurns += card.amount;
+  if (card.effect === "move") {
+    const oldPosition = player.position;
+    player.position = (player.position + card.amount + tiles.length) % tiles.length;
+    if (card.amount > 0 && oldPosition + card.amount >= tiles.length) {
+      player.safety += 10;
+      addLog(`${player.hero.name}经过马蹄岗复盘站，安全值 +10`);
+    }
+  }
+  addLog(`${player.hero.name}执行卡牌效果：${card.label}`);
+  tone(deckType === "reward" ? 620 : 220, .13);
+  prepareContinue();
 }
 
 function addClue(player) {
@@ -581,7 +665,7 @@ function useRescueForDetention() {
   render();
 }
 
-function showModal({ icon, type, title, location = "", body = "", choices = [], locked = true, continueText = "", onContinue = null }) {
+function showModal({ icon, type, title, location = "", body = "", choices = [], locked = true, continueText = "", onContinue = null, cardType = "" }) {
   state.modalLocked = locked;
   state.modalContinue = onContinue;
   $("#modalIcon").textContent = icon;
@@ -590,6 +674,7 @@ function showModal({ icon, type, title, location = "", body = "", choices = [], 
   $("#modalLocation").textContent = location;
   $("#modalLocation").hidden = !location;
   $("#storyCopy").innerHTML = body;
+  $(".story-modal").dataset.cardType = cardType;
   $("#feedback").hidden = true;
   $("#feedback").className = "feedback";
   $("#feedback").innerHTML = "";

@@ -70,14 +70,17 @@
               <div class="center-alert"><span>!</span><div><small>高危预警</small><b>先停止转账</b><em>再核身份与账户</em></div></div>
               <div class="center-guide"><img src="assets/characters/mascot-purple.png" alt="" /><span>桃桃提醒<small>陌生链接先别点</small></span></div>
               <div class="knowledge-card"><span>📖</span><div><small>防诈调查簿</small><b id="centerCaseCount">0 / 8</b><em>识破骗局，点亮图鉴</em></div></div>
-              <div class="card-deck"><i></i><i></i><b>反诈<br />事件卡</b></div>
+              <div class="fortune-decks" aria-label="平安奖励卡与风险惩戒卡">
+                <div class="mini-deck reward-deck"><i></i><i></i><b><small>平安</small>奖励卡<strong>守护 · 线索 · 前进</strong></b></div>
+                <div class="mini-deck risk-deck"><i></i><i></i><b><small>风险</small>惩戒卡<strong>扣分 · 后退 · 暂停</strong></b></div>
+              </div>
             </div>
           </div>
         </div>
 
         <div class="legend" aria-label="棋格图例">
           <span><i class="blue"></i>安全实践</span><span><i class="red"></i>诈骗陷阱</span>
-          <span><i class="yellow"></i>情景抉择</span><span><i class="orange"></i>事件抽取</span>
+          <span><i class="yellow"></i>情景抉择</span><span><i class="green"></i>平安奖励卡</span><span><i class="orange"></i>风险惩戒卡</span>
           <span><i class="navy"></i>四角地标</span><small>提示：可点击任意棋格查看完整情景</small>
         </div>
       </article>
@@ -90,7 +93,7 @@
           </div>
           <div class="safety-meter"><div><span>安全值</span><b id="turnSafety">—</b></div><div class="meter"><i id="safetyBar"></i></div></div>
           <div class="resource-row">
-            <span id="rescueStatus">☎ 96110 × 1</span><span id="clueStatus">◆ 调查线索 × 0</span><span id="stampStatus">章 多方核验 × 0</span>
+            <span id="rescueStatus">☎ 96110 × 1</span><span id="shieldStatus">盾 守护盾 × 0</span><span id="clueStatus">◆ 调查线索 × 0</span><span id="stampStatus">章 多方核验 × 0</span>
           </div>
         </section>
 
@@ -127,7 +130,7 @@
   <div class="overlay" id="setupOverlay">
     <section class="setup-dialog" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
       <p class="kicker">组建寻乌反诈调查队</p><h2 id="setupTitle">开始一场新的平安闯关</h2>
-      <p class="dialog-lead">选择 2–4 位玩家和对局模式。每位玩家从 100 安全值、1 张 96110 求助卡开始。</p>
+      <p class="dialog-lead">选择 2–4 位玩家和对局模式。每位玩家从 100 安全值、1 张 96110 求助卡开始；沿途还会抽取大富翁式奖惩卡。</p>
       <div class="setup-block">
         <div class="setup-label"><b>参赛角色</b><span>至少选择 2 位</span></div>
         <div class="character-options" id="characterOptions"></div>
@@ -155,11 +158,12 @@
     <p class="kicker">快速规则</p><h2>先调查，再行动</h2>
     <div class="rule-grid">
       <article><b>01 · 掷双骰前进</b><p>点数相同可再掷一次；连续三次对子直接进入“陷入骗局滞留区”。</p></article>
-      <article><b>02 · 四类棋格</b><p>蓝色安全实践、红色诈骗陷阱、黄色情景抉择、橙色事件抽取。</p></article>
+      <article><b>02 · 五类棋格</b><p>蓝色安全实践、红色诈骗陷阱、黄色情景抉择，以及绿色平安奖励卡和橙红色风险惩戒卡。</p></article>
       <article><b>03 · 96110 求助卡</b><p>每人仅一张，可在 ≥20 的扣分生效前抵消全部损失，也可立即解除滞留。</p></article>
       <article><b>04 · 多方核验</b><p>安全选择会积累调查线索；每 3 条自动形成一枚核验章，并获得安全值奖励。</p></article>
-      <article><b>05 · 经过起点</b><p>每次经过或落到马蹄岗复盘站，获得 10 点安全值；直接传送滞留区不计。</p></article>
-      <article><b>06 · 胜负</b><p>标准模式坚持到最后；活动模式 28 分钟后按安全值排名，可并列获胜。</p></article>
+      <article><b>05 · 大富翁式奖惩卡</b><p>平安卡可能奖励安全值、线索、守护盾或额外行动；风险卡可能扣分、后退或暂停一回合。守护盾可自动抵消整张风险卡。</p></article>
+      <article><b>06 · 经过起点</b><p>每次经过或落到马蹄岗复盘站，获得 10 点安全值；直接传送滞留区不计。</p></article>
+      <article><b>07 · 胜负</b><p>标准模式坚持到最后；活动模式 28 分钟后按安全值排名，可并列获胜。</p></article>
     </div>
     <p class="rule-note">普通移动落在第 21 格只是“路过参观”，不会自动滞留。安全值代表风险抵御能力，不是金钱。</p>
   </div>
