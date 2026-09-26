@@ -99,7 +99,7 @@
 
         <section class="dice-console">
           <p id="turnPrompt">开局后点击骰子开始行动</p>
-          <div class="dice-pair single-die" aria-label="单骰结果"><div class="die" id="dieOne"><span>⚀</span></div></div>
+          <div class="dice-pair single-die" aria-label="单骰结果"><div class="die" id="dieOne"><img src="assets/ui/dice-3d.webp" alt="红色立体骰子" /><div class="dice-face" id="consoleDiceFace" data-value="1" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span id="dieValue">待投</span></div></div>
           <button class="primary-action" id="rollButton" type="button" disabled><span>掷骰子</span><small>ROLL</small></button>
           <div class="detention-actions" id="detentionActions" hidden>
             <button id="waitButton" type="button">等待一回合</button><button id="useRescueButton" type="button">使用 96110 卡</button>
@@ -125,7 +125,13 @@
     </section>
   </main>
 
-  <footer><p>寻乌法治科普实践 · 反诈不是背口号，而是在每一次选择前停一停、查一查、问一问。</p></footer>
+  <footer><p>寻乌法治科普实践 · 反诈不是背口号，而是在每一次选择前停一停、查一查、问一问。</p><small>3D 骰子图标由 <a href="https://thridy.com/dice-3d-icon" target="_blank" rel="noopener noreferrer">Thridy</a> 提供</small></footer>
+
+  <div class="roll-stage" id="rollStage" hidden aria-live="polite">
+    <div class="roll-ring"></div>
+    <div class="rolling-die-wrap"><img src="assets/ui/dice-3d.webp" alt="正在投掷的立体骰子" /><div class="dice-face" id="stageDiceFace" data-value="1" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <b id="rollStageResult">投掷中</b>
+  </div>
 
   <div class="overlay" id="setupOverlay">
     <section class="setup-dialog" role="dialog" aria-modal="true" aria-labelledby="setupTitle">

@@ -333,12 +333,25 @@ async function rollDice() {
   state.extraRoll = false;
   render();
   const roll = Math.ceil(Math.random() * 6);
+  const rollStage = $("#rollStage");
+  rollStage.hidden = false;
+  rollStage.className = "roll-stage rolling";
+  $("#rollStageResult").textContent = "投掷中";
+  $("#stageDiceFace").dataset.value = String(roll % 6 + 1);
   $("#dieOne").classList.add("rolling");
   tone(260, .07);
-  await wait(720);
+  await wait(920);
   $("#dieOne").classList.remove("rolling");
-  $("#dieOne span").textContent = "⚀⚁⚂⚃⚄⚅"[roll - 1];
+  $("#dieValue").textContent = `${roll} 点`;
+  $("#consoleDiceFace").dataset.value = String(roll);
+  $("#stageDiceFace").dataset.value = String(roll);
+  $("#rollStageResult").textContent = `${roll} 点`;
+  rollStage.className = "roll-stage settled";
+  tone(540 + roll * 24, .12);
   addLog(`${currentPlayer().hero.name}掷出 ${roll} 点`);
+  await wait(560);
+  rollStage.hidden = true;
+  rollStage.className = "roll-stage";
   await movePlayer(roll);
 }
 
