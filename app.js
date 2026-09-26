@@ -265,6 +265,7 @@ function renderCurrent() {
 function renderCases() {
   const count = Math.min(8, state.cases.size);
   $("#caseCount").textContent = `${count} / 8`;
+  $("#centerCaseCount").textContent = `${count} / 8`;
   $("#caseProgress").style.width = `${count / 8 * 100}%`;
   $("#caseHint").textContent = count >= 8 ? "调查簿已完成：你已识别八类高发骗局。" : count ? `已识破：${[...state.cases].slice(-3).join("、")}` : "识破不同类型的骗局，完善调查簿。";
 }
