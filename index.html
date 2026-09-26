@@ -27,7 +27,7 @@
         <p class="kicker">红土寻乌 · 守好百姓钱袋子</p>
         <h1>走一程寻乌乡野，<br /><em>练一身识骗本领。</em></h1>
         <p class="hero-lead">没有调查，没有发言权；不轻信、不转账，多方核验再行动。</p>
-        <div class="hero-tags"><span>40 格环形闯关</span><span>2–4 人同屏</span><span>单骰回合制</span><span>三维沉浸棋盘</span></div>
+        <div class="hero-tags"><span>40 格环形闯关</span><span>2–4 人同屏</span><span>随机四选一题库</span><span>单骰回合制</span><span>三维沉浸棋盘</span></div>
       </div>
       <div class="mascot-lineup" aria-label="四位寻乌文创角色">
         <figure><img src="assets/characters/mascot-red.png" alt="红盾调查员" /><figcaption>红盾调查员</figcaption></figure>
@@ -136,7 +136,7 @@
   <div class="overlay" id="setupOverlay">
     <section class="setup-dialog" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
       <p class="kicker">组建寻乌反诈调查队</p><h2 id="setupTitle">开始一场新的平安闯关</h2>
-      <p class="dialog-lead">选择 2–4 位玩家和对局模式。每位玩家从 100 安全值、1 张 96110 求助卡开始；沿途还会抽取大富翁式奖惩卡。</p>
+      <p class="dialog-lead">选择 2–4 位玩家和对局模式。每位玩家从 100 安全值、1 张 96110 求助卡开始；陷阱与抉择会触发随机四选一题，沿途还会抽取大富翁式奖惩卡。</p>
       <div class="setup-block">
         <div class="setup-label"><b>参赛角色</b><span>至少选择 2 位</span></div>
         <div class="character-options" id="characterOptions"></div>
@@ -165,11 +165,12 @@
     <div class="rule-grid">
       <article><b>01 · 掷单骰前进</b><p>每回合掷一颗骰子，按点数顺时针逐格前进；抽到“额外行动”奖励后可再掷一次。</p></article>
       <article><b>02 · 五类棋格</b><p>蓝色安全实践、红色诈骗陷阱、黄色情景抉择，以及绿色平安奖励卡和橙红色风险惩戒卡。</p></article>
-      <article><b>03 · 96110 求助卡</b><p>每人仅一张，可在 ≥20 的扣分生效前抵消全部损失，也可立即解除滞留。</p></article>
-      <article><b>04 · 多方核验</b><p>安全选择会积累调查线索；每 3 条自动形成一枚核验章，并获得安全值奖励。</p></article>
-      <article><b>05 · 大富翁式奖惩卡</b><p>平安卡可能奖励安全值、线索、守护盾或额外行动；风险卡可能扣分、后退、暂停一回合或送入滞留区。守护盾可自动抵消整张风险卡。</p></article>
-      <article><b>06 · 经过起点</b><p>每次经过或落到马蹄岗复盘站，获得 10 点安全值；直接传送滞留区不计。</p></article>
-      <article><b>07 · 胜负</b><p>标准模式坚持到最后；活动模式 28 分钟后按安全值排名，可并列获胜。</p></article>
+      <article><b>03 · 随机四选一</b><p>落到诈骗陷阱或情景抉择格时，从多主题题库随机抽题；A–D 四个选项也会重新洗牌，且每轮题库抽完前不重复。答对安全值 +8 并获得线索，答错安全值 -15。</p></article>
+      <article><b>04 · 96110 求助卡</b><p>每人仅一张，可在 ≥20 的扣分生效前抵消全部损失，也可立即解除滞留。</p></article>
+      <article><b>05 · 多方核验</b><p>安全选择会积累调查线索；每 3 条自动形成一枚核验章，并获得安全值奖励。</p></article>
+      <article><b>06 · 大富翁式奖惩卡</b><p>平安卡可能奖励安全值、线索、守护盾或额外行动；风险卡可能扣分、后退、暂停一回合或送入滞留区。守护盾可自动抵消整张风险卡。</p></article>
+      <article><b>07 · 经过起点</b><p>每次经过或落到马蹄岗复盘站，获得 10 点安全值；直接传送滞留区不计。</p></article>
+      <article><b>08 · 胜负</b><p>标准模式坚持到最后；活动模式 28 分钟后按安全值排名，可并列获胜。</p></article>
     </div>
     <p class="rule-note">普通移动落在第 21 格只是“路过参观”，不会自动滞留。安全值代表风险抵御能力，不是金钱。</p>
   </div>
