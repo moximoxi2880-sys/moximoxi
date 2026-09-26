@@ -47,7 +47,7 @@ const tiles = [
   trap("冒充亲友 AI 换脸", "🎭", "视频中的“亲友”神情自然，却催你马上代转一笔急用款。", 32, "AI 换脸", "视频也要二次核验"),
   safe("百果满园合作社", "🤝", 11, "合作社建立双人复核：大额付款必须核合同、核账户、核收款人。"),
   choice("研学旅游项目抉择", "🚌", "陌生机构发来低价研学团链接，要求脱离平台缴纳定金。", "通过学校或文旅部门核验资质与合同", "被限时名额催促，点击链接直接付款", "虚假旅游", "脱离平台付款"),
-  special("陷入骗局滞留区", "⏸", "detention", "正常移动落到这里仅为“路过参观”；只有连续三次对子或事件传送才会滞留。"),
+  special("陷入骗局滞留区", "⏸", "detention", "正常移动落到这里仅为“路过参观”；只有风险惩戒卡传送才会进入滞留状态。"),
   eventTile("圳下战斗旧址·平安卡", "📯", "reward"),
   safe("村新时代文明实践站", "📣", 13, "把典型骗局讲给邻里听，帮助身边人建立“先核验、后行动”的习惯。"),
   trap("虚假保险骗局", "☂", "“理赔专员”准确说出订单信息，要求共享屏幕办理快速赔付。", 26, "虚假理赔", "共享屏幕"),
@@ -88,7 +88,7 @@ const riskCards = [
   { title: "养老项目限时返利", text: "所谓养老服务专员用高息和赠品催促老人当天付款。", icon: "🧓", effect: "safety", amount: -18, caseId: "养老投资", label: "安全值 -18" },
   { title: "AI 亲友紧急借款", text: "视频里的人像亲友，却拒绝回答你们约定的核验问题。", icon: "🎭", effect: "safety", amount: -20, caseId: "AI 换脸", label: "安全值 -20" },
   { title: "游戏装备低价代充", text: "陌生卖家让你脱离平台扫码充值，付款后立即失联。", icon: "🎮", effect: "safety", amount: -16, caseId: "游戏充值", label: "安全值 -16" },
-  { title: "刷单连环任务", text: "小额返利后出现必须连续完成的大额任务，你被拖住了。", icon: "📱", effect: "skip", amount: 1, caseId: "刷单返利", label: "暂停行动 1 回合" },
+  { title: "刷单连环任务", text: "小额返利后出现必须连续完成的大额任务，你被话术困住了。", icon: "📱", effect: "detention", caseId: "刷单返利", label: "进入骗局滞留区" },
   { title: "虚假蜜桔采购单", text: "高价采购商索要渠道保证金，你需要退回核验来源。", icon: "🍊", effect: "move", amount: -3, caseId: "预付保证金", label: "沿路线后退 3 格" },
   { title: "冒充干部发补贴", text: "对方索取银行卡验证码，造成信息风险。", icon: "📄", effect: "clue", amount: -1, caseId: "冒充补贴", label: "调查线索 -1" },
   { title: "共享屏幕理赔", text: "假客服诱导共享屏幕，你的验证码暴露。", icon: "📦", effect: "safety", amount: -22, caseId: "虚假理赔", label: "安全值 -22" },
@@ -110,7 +110,7 @@ const perimeter = (() => {
 
 const state = {
   started: false, finished: false, mode: "standard", players: [], current: 0, round: 1,
-  phase: "setup", doublesStreak: 0, extraRoll: false, selectedHeroes: new Set(["red", "blue"]),
+  phase: "setup", extraRoll: false, selectedHeroes: new Set(["red", "blue"]),
   cases: new Set(), logs: [], secondsLeft: 28 * 60, timer: null, tilt: 34, topView: false,
   sound: true, modalLocked: false, modalContinue: null, rewardIndex: 0, riskIndex: 0, mixedDeck: "reward"
 };
@@ -197,7 +197,6 @@ function startGame() {
   state.current = Math.floor(Math.random() * state.players.length);
   state.round = 1;
   state.phase = "roll";
-  state.doublesStreak = 0;
   state.extraRoll = false;
   state.cases = new Set();
   state.logs = [];
@@ -319,50 +318,28 @@ function beginTurn() {
   }
   state.phase = player.detained ? "detained" : "roll";
   state.extraRoll = false;
-  state.doublesStreak = 0;
   $("#detentionActions").hidden = !player.detained;
   $("#useRescueButton").disabled = !player.rescue;
   $("#rollButton").hidden = player.detained;
   $("#turnPrompt").textContent = player.detained
     ? "本回合不能掷骰：等待一回合，或消耗 96110 求助卡立即解除。"
-    : `${player.hero.name}，掷出双骰沿棋盘顺时针调查。`;
+    : `${player.hero.name}，掷一颗骰子沿棋盘顺时针调查。`;
   render();
 }
 
 async function rollDice() {
   if (state.phase !== "roll" || state.finished) return;
   state.phase = "rolling";
+  state.extraRoll = false;
   render();
-  const d1 = Math.ceil(Math.random() * 6);
-  const d2 = Math.ceil(Math.random() * 6);
-  $(".die", $("#dieOne"))?.classList?.add("rolling");
+  const roll = Math.ceil(Math.random() * 6);
   $("#dieOne").classList.add("rolling");
-  $("#dieTwo").classList.add("rolling");
   tone(260, .07);
   await wait(720);
   $("#dieOne").classList.remove("rolling");
-  $("#dieTwo").classList.remove("rolling");
-  $("#dieOne span").textContent = "⚀⚁⚂⚃⚄⚅"[d1 - 1];
-  $("#dieTwo span").textContent = "⚀⚁⚂⚃⚄⚅"[d2 - 1];
-  const doubles = d1 === d2;
-  state.extraRoll = doubles;
-  state.doublesStreak = doubles ? state.doublesStreak + 1 : 0;
-  addLog(`${currentPlayer().hero.name}掷出 ${d1}+${d2}${doubles ? "（对子）" : ""}`);
-  if (state.doublesStreak >= 3) {
-    state.extraRoll = false;
-    currentPlayer().position = 20;
-    currentPlayer().detained = true;
-    render();
-    addLog(`${currentPlayer().hero.name}连续三次对子，进入滞留区`);
-    showModal({
-      icon: "⏸", type: "特殊状态", title: "连续三次对子：陷入骗局滞留",
-      location: "直接传送到第 21 格 · 本次不经过起点",
-      body: "<p>连续的顺利容易让人放松警惕。你被模拟骗局的话术困住，本回合立即结束。</p><div class='quote'>下次轮到你时，可等待一回合，或使用 96110 求助卡立即解除。</div>",
-      choices: [], locked: true, continueText: "结束本回合", onContinue: nextTurn
-    });
-    return;
-  }
-  await movePlayer(d1 + d2);
+  $("#dieOne span").textContent = "⚀⚁⚂⚃⚄⚅"[roll - 1];
+  addLog(`${currentPlayer().hero.name}掷出 ${roll} 点`);
+  await movePlayer(roll);
 }
 
 async function movePlayer(steps) {
@@ -521,6 +498,10 @@ function applyCardEffect(card, deckType) {
   }
   if (card.effect === "extra") state.extraRoll = true;
   if (card.effect === "skip") player.skipTurns += card.amount;
+  if (card.effect === "detention") {
+    player.position = 20;
+    player.detained = true;
+  }
   if (card.effect === "move") {
     const oldPosition = player.position;
     player.position = (player.position + card.amount + tiles.length) % tiles.length;
@@ -593,7 +574,7 @@ function prepareContinue() {
   state.modalContinue = finishResolution;
 }
 
-function turnContinueText() { return state.extraRoll ? "对子！处理完毕后再掷一次" : "完成处理，交给下一位"; }
+function turnContinueText() { return state.extraRoll ? "奖励生效！处理完毕后再掷一次" : "完成处理，交给下一位"; }
 
 function finishResolution() {
   closeModal();
@@ -606,7 +587,7 @@ function finishResolution() {
   if (currentPlayer().eliminated) return nextTurn();
   if (state.extraRoll) {
     state.phase = "roll";
-    $("#turnPrompt").textContent = "掷出对子：完成当前格效果后，可以再掷一次。";
+    $("#turnPrompt").textContent = "平安奖励生效：可以再掷一次骰子。";
     render();
     return;
   }

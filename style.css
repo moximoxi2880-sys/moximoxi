@@ -255,6 +255,8 @@ main { width: min(1500px, 100%); margin: auto; padding: 0 clamp(12px, 3.2vw, 48p
 .dice-console p { min-height: 32px; margin: 0 0 8px; color: var(--muted); font-size: 10px; }
 .dice-pair { display: flex; justify-content: center; gap: 14px; margin-bottom: 12px; perspective: 500px; }
 .die { position: relative; width: 57px; height: 57px; display: grid; place-items: center; border: 2px solid #d6c59f; border-radius: 12px; color: var(--red); background: linear-gradient(145deg,#fffefa,#ebdfc9); box-shadow: 5px 6px 0 #bca67c, 9px 11px 18px rgba(57,44,27,.2); transform: rotateX(7deg) rotateY(-8deg); }
+.dice-pair.single-die .die { width: 68px; height: 68px; border-radius: 15px; }
+.dice-pair.single-die .die span { font-size: 50px; }
 .die span { font: 42px/1 Georgia, serif; }
 .die.rolling { animation: diceRoll .7s cubic-bezier(.3,.8,.2,1); }
 .die:nth-child(2).rolling { animation-direction: reverse; }
