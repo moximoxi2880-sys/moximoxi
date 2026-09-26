@@ -1,6 +1,7 @@
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+const MOVE_STEP_MS = 330;
 
 const heroes = [
   { id: "red", name: "红盾调查员", title: "复盘队长", color: "#b7352b", image: "assets/characters/mascot-red.png" },
@@ -369,6 +370,7 @@ async function movePlayer(steps) {
   $("#turnPrompt").textContent = `前进 ${steps} 格，沿途留意风险信号……`;
   render();
   const player = currentPlayer();
+  const pawn = $(`#pawn-${player.hero.id}`);
   for (let step = 0; step < steps; step++) {
     player.position = (player.position + 1) % tiles.length;
     if (player.position === 0) {
@@ -376,9 +378,16 @@ async function movePlayer(steps) {
       addLog(`${player.hero.name}经过马蹄岗复盘站，安全值 +10`);
       tone(620, .05);
     }
+    pawn.style.setProperty("--step-sway", step % 2 ? "-3deg" : "3deg");
+    pawn.classList.remove("stepping");
+    void pawn.offsetWidth;
+    pawn.classList.add("stepping");
     renderPawns();
     renderCurrent();
-    await wait(125);
+    if (step % 2 === 0) tone(320 + (step % 4) * 35, .035);
+    await wait(MOVE_STEP_MS);
+    pawn.classList.remove("stepping");
+    await wait(35);
   }
   state.phase = "resolve";
   render();

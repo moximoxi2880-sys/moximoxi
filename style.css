@@ -204,6 +204,7 @@ main { width: min(1500px, 100%); margin: auto; padding: 0 clamp(12px, 3.2vw, 48p
 .pawn {
   --pawn-offset-x: 0px;
   --pawn-offset-y: 0px;
+  --step-sway: 3deg;
   position: absolute;
   z-index: 25;
   left: 50%;
@@ -213,13 +214,20 @@ main { width: min(1500px, 100%); margin: auto; padding: 0 clamp(12px, 3.2vw, 48p
   pointer-events: none;
   transform-style: preserve-3d;
   transform: translate(calc(-50% + var(--pawn-offset-x)), calc(-92% + var(--pawn-offset-y))) rotateX(var(--camera-counter-tilt)) translateZ(55px);
-  transition: left .18s linear, top .18s linear, transform .65s;
+  transition: left .3s cubic-bezier(.22,.72,.28,1), top .3s cubic-bezier(.22,.72,.28,1), transform .65s;
 }
 .pawn img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 6px 4px rgba(0,0,0,.38)); }
+.pawn::before { content: ""; position: absolute; z-index: -1; left: 7%; top: 48%; width: 28%; height: 9%; opacity: 0; border-radius: 99px; background: linear-gradient(90deg,rgba(255,245,177,0),rgba(255,226,95,.9)); filter: blur(1px); transform: translateX(-16px) rotate(-10deg); }
 .pawn::after { content: ""; position: absolute; left: 21%; right: 21%; bottom: 2px; height: 7px; border-radius: 50%; background: rgba(5,17,27,.45); filter: blur(2px); }
 .pawn.current img { animation: pawnBob .9s ease-in-out infinite; }
+.pawn.stepping img { animation: pawnStep .34s cubic-bezier(.22,.72,.28,1); }
+.pawn.stepping::before { animation: pawnTrail .34s ease-out; }
+.pawn.stepping::after { animation: pawnShadow .34s ease-out; }
 .pawn.eliminated { filter: grayscale(1); opacity: .4; }
 @keyframes pawnBob { 50% { transform: translateY(-7px); } }
+@keyframes pawnStep { 0% { transform: translateY(0) rotate(0) scale(1); } 45% { transform: translateY(-12px) rotate(var(--step-sway)) scale(1.07); } 78% { transform: translateY(-2px) rotate(0) scale(.98,1.03); } 100% { transform: translateY(0) rotate(0) scale(1); } }
+@keyframes pawnTrail { 0% { opacity: 0; transform: translateX(-5px) scaleX(.35) rotate(-10deg); } 35% { opacity: .9; } 100% { opacity: 0; transform: translateX(-24px) scaleX(1.15) rotate(-10deg); } }
+@keyframes pawnShadow { 0%,100% { transform: scaleX(1); opacity: .75; } 48% { transform: scaleX(.55); opacity: .35; } }
 
 .legend { min-height: 45px; padding: 13px 5px 0; display: flex; flex-wrap: wrap; gap: 9px 14px; align-items: center; color: var(--muted); font-size: 9px; }
 .legend span { display: flex; align-items: center; gap: 5px; font-weight: 800; }
